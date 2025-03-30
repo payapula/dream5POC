@@ -1,0 +1,10 @@
+---
+description: 
+globs: *.tsx,*.css
+alwaysApply: false
+---
+
+- Utilize Tailwind CSS utility classes for styling components.
+- Follow Shadcn UI component guidelines and best practices.
+- Use only mobile specific styles.
+- Do not provide desktop specific styles as our app is MOBILE ONLY.
