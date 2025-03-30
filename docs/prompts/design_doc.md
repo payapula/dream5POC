@@ -116,6 +116,8 @@ Should have links to the following pages:
 
 - Matches
 
+There will be a button "Add Data" at the top right of the page.
+
 ### Matches
 
 This is the page where all the matches are listed.
@@ -157,7 +159,33 @@ Match Result Card
 - Rank
 - 1Up
 
+There will be a button to "Edit" the scorecard for that match.
+
+## Add / Edit Data
+
+This is a drawer that allows you to add or edit data for a match.
+
+Add:
+
+It has the following fields:
+
+- Match Number - Select from dropdown
+- Match Winner - Select from dropdown (Options Team 1 Won, Team 2 Won, Draw)
+- Score for User 1 - Number input
+- Score for User 2 - Number input
+- Score for User 3 - Number input
+- Score for User 4 - Number input
+- Score for User 5 - Number input
+- Submit Button
+
+Edit:
+
+It has the same fields as above, which is editable.
 
 ### Mockup
 
 ![Dream5 Mockup](./dream5.png)
+
+Add / Edit Data Drawer
+
+![Add / Edit Data Drawer](./add_edit_data.png)
