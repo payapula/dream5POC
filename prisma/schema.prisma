@@ -15,10 +15,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// RELATIONSHIPS OVERVIEW:
+// - User has many UserScores (one user can score in multiple matches)
+// - Team can be homeTeam or awayTeam in multiple matches
+// - Match has one homeTeam, one awayTeam, and many UserScores
+// - UserScore connects one User to one Match with their score
+
 model User {
   id         String       @id @default(cuid())
   name       String       @unique
   displayName String
+  // One-to-many: A user can have scores in multiple matches
   userScores UserScore[]
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
@@ -27,7 +34,9 @@ model User {
 model Team {
   id         String   @id @default(cuid())
   name       String   @unique
+  // One-to-many: A team can be the home team in multiple matches
   homeMatches Match[]  @relation("HomeTeam")
+  // One-to-many: A team can be the away team in multiple matches
   awayMatches Match[]  @relation("AwayTeam")
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -39,9 +48,12 @@ model Match {
   date         DateTime
   homeTeamId   String
   awayTeamId   String
-  winningTeamId String?       // Which team won (null if draw)
+  winningTeamId String?    // Which team won (null if draw)
+  // Many-to-one: Each match has exactly one home team
   homeTeam     Team        @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  // Many-to-one: Each match has exactly one away team
   awayTeam     Team        @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  // One-to-many: A match can have multiple user scores (one per user)
   userScores   UserScore[]
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
@@ -52,10 +64,13 @@ model UserScore {
   userId    String
   matchId   String
   score     Int
+  // Many-to-one: Each score entry belongs to exactly one user
   user      User     @relation(fields: [userId], references: [id])
+  // Many-to-one: Each score entry belongs to exactly one match
   match     Match    @relation(fields: [matchId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([userId, matchId])  // A user can only have one score per match
+  // Composite unique constraint: A user can only have one score per match
+  @@unique([userId, matchId])
 }
