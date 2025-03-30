@@ -3,13 +3,13 @@ import { Welcome } from "../welcome/welcome";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
+    { title: "Dream 5 Application" },
+    { name: "description", content: "Welcome to Dream 5 Application!" },
   ];
 }
 
 export function loader({ context }: Route.LoaderArgs) {
-  return { message: "Hello from Vercel" };
+  return { message: "Hello from Dream 5 Application" };
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
