@@ -12,11 +12,13 @@ export function AddEditMatchDetails() {
   return (
     <Drawer>
       <DrawerTrigger asChild>
-        <Button>Update Match Details</Button>
+        <Button className="cursor-pointer">Update Match Details</Button>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle>Update Match Details</DrawerTitle>
+          <DrawerTitle className="text-center font-bold">
+            Update Match Details
+          </DrawerTitle>
         </DrawerHeader>
 
         <div className="p-4">
