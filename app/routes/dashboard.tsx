@@ -25,6 +25,18 @@ export async function loader({}: Route.LoaderArgs) {
     return acc;
   }, {} as Record<string, typeof allScores>);
 
+  // Pre-calculate highest and lowest scores for each match
+  const matchStats = Object.entries(scoresByMatch).reduce(
+    (acc, [matchId, scores]) => {
+      acc[matchId] = {
+        highestScore: Math.max(...scores.map((s) => s.score)),
+        lowestScore: Math.min(...scores.map((s) => s.score)),
+      };
+      return acc;
+    },
+    {} as Record<string, { highestScore: number; lowestScore: number }>
+  );
+
   // Calculate stats for each user
   const userStats = users.map((user) => {
     const userScores = allScores.filter((score) => score.userId === user.id);
@@ -33,14 +45,11 @@ export async function loader({}: Route.LoaderArgs) {
     let matchesWon = 0;
     let matchesLost = 0;
 
-    // Check each match the user participated in
+    // Now we use the pre-calculated stats
     userScores.forEach((score) => {
-      const matchScores = scoresByMatch[score.matchId];
-      const highestScore = Math.max(...matchScores.map((s) => s.score));
-      const lowestScore = Math.min(...matchScores.map((s) => s.score));
-
-      if (score.score === highestScore) matchesWon++;
-      if (score.score === lowestScore) matchesLost++;
+      const stats = matchStats[score.matchId];
+      if (score.score === stats.highestScore) matchesWon++;
+      if (score.score === stats.lowestScore) matchesLost++;
     });
 
     return {
@@ -82,6 +91,9 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
                     User Name
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Ranking
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Total Score
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -89,9 +101,6 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Matches Lost
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Ranking
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     1Up
@@ -105,6 +114,9 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
                       {user.displayName}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
+                      {user.ranking}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
                       {user.totalScore}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -112,9 +124,6 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {user.matchesLost}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {user.ranking}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {user.oneUp}
