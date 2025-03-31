@@ -8,6 +8,9 @@
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc"
   },
+  "prisma": {
+    "seed": "npx tsx prisma/seed.ts"
+  },
   "dependencies": {
     "@prisma/client": "^6.5.0",
     "@react-router/node": "^7.1.5",
