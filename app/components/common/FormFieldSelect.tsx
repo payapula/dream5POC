@@ -24,7 +24,9 @@ export function FormFieldSelect({
   form: UseFormReturn<any>;
   name: string;
 }) {
-  const fetcher = useFetcher<typeof MatchListLoader>();
+  const fetcher = useFetcher<typeof MatchListLoader>({
+    key: "match-list",
+  });
 
   useEffect(() => {
     fetcher.load("/match-list");
