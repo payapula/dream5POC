@@ -1,6 +1,5 @@
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
   DrawerDescription,
   DrawerFooter,
@@ -9,24 +8,24 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
+import { Form } from "react-router";
+import { AddMatchDetailsForm } from "./AddMatchForm";
 
 export function AddEditMatchDetails() {
   return (
     <Drawer>
-      <DrawerTrigger>
+      <DrawerTrigger asChild>
         <Button>Add Match Details</Button>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
           <DrawerTitle>Add Match Details</DrawerTitle>
-          <DrawerDescription>This action cannot be undone.</DrawerDescription>
         </DrawerHeader>
-        <DrawerFooter>
-          <Button>Submit</Button>
-          <DrawerClose>
-            <Button variant="outline">Cancel</Button>
-          </DrawerClose>
-        </DrawerFooter>
+        <Form method="post">
+          <div className="p-4">
+            <AddMatchDetailsForm />
+          </div>
+        </Form>
       </DrawerContent>
     </Drawer>
   );

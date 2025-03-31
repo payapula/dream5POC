@@ -1,79 +1,85 @@
 import type { Route } from "./+types/dashboard";
-import { prisma } from "~/utils/db.server";
-import { useLoaderData } from "react-router";
+// import { prisma } from "~/utils/db.server";
+// import { useLoaderData } from "react-router";
 import { AddEditMatchDetails } from "~/components/common/AddEditMatchDetails";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Dream5 | Dashboard" }];
 }
 
-export async function loader({}: Route.LoaderArgs) {
-  // Get all users
-  const users = await prisma.user.findMany();
+// export async function loader({}: Route.LoaderArgs) {
+//   // Get all users
+//   const users = await prisma.user.findMany();
 
-  // Get all scores
-  const allScores = await prisma.userScore.findMany({
-    include: {
-      match: true,
-    },
-  });
+//   // Get all scores
+//   const allScores = await prisma.userScore.findMany({
+//     include: {
+//       match: true,
+//     },
+//   });
 
-  // Group scores by match
-  const scoresByMatch = allScores.reduce((acc, score) => {
-    if (!acc[score.matchId]) {
-      acc[score.matchId] = [];
-    }
-    acc[score.matchId].push(score);
-    return acc;
-  }, {} as Record<string, typeof allScores>);
+//   // Group scores by match
+//   const scoresByMatch = allScores.reduce((acc, score) => {
+//     if (!acc[score.matchId]) {
+//       acc[score.matchId] = [];
+//     }
+//     acc[score.matchId].push(score);
+//     return acc;
+//   }, {} as Record<string, typeof allScores>);
 
-  // Pre-calculate highest and lowest scores for each match
-  const matchStats = Object.entries(scoresByMatch).reduce(
-    (acc, [matchId, scores]) => {
-      acc[matchId] = {
-        highestScore: Math.max(...scores.map((s) => s.score)),
-        lowestScore: Math.min(...scores.map((s) => s.score)),
-      };
-      return acc;
-    },
-    {} as Record<string, { highestScore: number; lowestScore: number }>
-  );
+//   // Pre-calculate highest and lowest scores for each match
+//   const matchStats = Object.entries(scoresByMatch).reduce(
+//     (acc, [matchId, scores]) => {
+//       acc[matchId] = {
+//         highestScore: Math.max(...scores.map((s) => s.score)),
+//         lowestScore: Math.min(...scores.map((s) => s.score)),
+//       };
+//       return acc;
+//     },
+//     {} as Record<string, { highestScore: number; lowestScore: number }>
+//   );
 
-  // Calculate stats for each user
-  const userStats = users.map((user) => {
-    const userScores = allScores.filter((score) => score.userId === user.id);
-    const totalScore = userScores.reduce((sum, score) => sum + score.score, 0);
+//   // Calculate stats for each user
+//   const userStats = users.map((user) => {
+//     const userScores = allScores.filter((score) => score.userId === user.id);
+//     const totalScore = userScores.reduce((sum, score) => sum + score.score, 0);
 
-    let matchesWon = 0;
-    let matchesLost = 0;
+//     let matchesWon = 0;
+//     let matchesLost = 0;
 
-    // Now we use the pre-calculated stats
-    userScores.forEach((score) => {
-      const stats = matchStats[score.matchId];
-      if (score.score === stats.highestScore) matchesWon++;
-      if (score.score === stats.lowestScore) matchesLost++;
-    });
+//     // Now we use the pre-calculated stats
+//     userScores.forEach((score) => {
+//       const stats = matchStats[score.matchId];
+//       if (score.score === stats.highestScore) matchesWon++;
+//       if (score.score === stats.lowestScore) matchesLost++;
+//     });
 
-    return {
-      id: user.id,
-      name: user.name,
-      displayName: user.displayName,
-      totalScore,
-      matchesWon,
-      matchesLost,
-    };
-  });
+//     return {
+//       id: user.id,
+//       name: user.name,
+//       displayName: user.displayName,
+//       totalScore,
+//       matchesWon,
+//       matchesLost,
+//     };
+//   });
 
-  // Sort by total score (descending) to determine ranking
-  const rankedData = userStats
-    .sort((a, b) => b.totalScore - a.totalScore)
-    .map((user, index, array) => ({
-      ...user,
-      ranking: index + 1,
-      oneUp: index > 0 ? array[index - 1].totalScore - user.totalScore : 0,
-    }));
+//   // Sort by total score (descending) to determine ranking
+//   const rankedData = userStats
+//     .sort((a, b) => b.totalScore - a.totalScore)
+//     .map((user, index, array) => ({
+//       ...user,
+//       ranking: index + 1,
+//       oneUp: index > 0 ? array[index - 1].totalScore - user.totalScore : 0,
+//     }));
 
-  return { users: rankedData };
+//   return { users: rankedData };
+// }
+
+export async function action({ request }: Route.ActionArgs) {
+  let formData = await request.formData();
+  console.log("formData");
+  console.log(formData);
 }
 
 export default function Dashboard({}: Route.ComponentProps) {
@@ -84,63 +90,63 @@ export default function Dashboard({}: Route.ComponentProps) {
           <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
           <AddEditMatchDetails />
         </div>
-        <ResultsTable />
+        {/* <ResultsTable /> */}
       </div>
     </div>
   );
 }
 
-function ResultsTable() {
-  const { users } = useLoaderData<typeof loader>();
+// function ResultsTable() {
+//   const { users } = useLoaderData<typeof loader>();
 
-  return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                User Name
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Ranking
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Total Score
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Matches Won
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Matches Lost
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                1Up
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {users.map((user) => (
-              <tr key={user.id}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {user.displayName}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">{user.ranking}</td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {user.totalScore}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {user.matchesWon}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {user.matchesLost}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">{user.oneUp}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
+//   return (
+//     <div className="bg-white rounded-lg shadow overflow-hidden">
+//       <div className="overflow-x-auto">
+//         <table className="min-w-full divide-y divide-gray-200">
+//           <thead className="bg-gray-50">
+//             <tr>
+//               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+//                 User Name
+//               </th>
+//               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+//                 Ranking
+//               </th>
+//               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+//                 Total Score
+//               </th>
+//               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+//                 Matches Won
+//               </th>
+//               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+//                 Matches Lost
+//               </th>
+//               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+//                 1Up
+//               </th>
+//             </tr>
+//           </thead>
+//           <tbody className="bg-white divide-y divide-gray-200">
+//             {users.map((user) => (
+//               <tr key={user.id}>
+//                 <td className="px-6 py-4 whitespace-nowrap">
+//                   {user.displayName}
+//                 </td>
+//                 <td className="px-6 py-4 whitespace-nowrap">{user.ranking}</td>
+//                 <td className="px-6 py-4 whitespace-nowrap">
+//                   {user.totalScore}
+//                 </td>
+//                 <td className="px-6 py-4 whitespace-nowrap">
+//                   {user.matchesWon}
+//                 </td>
+//                 <td className="px-6 py-4 whitespace-nowrap">
+//                   {user.matchesLost}
+//                 </td>
+//                 <td className="px-6 py-4 whitespace-nowrap">{user.oneUp}</td>
+//               </tr>
+//             ))}
+//           </tbody>
+//         </table>
+//       </div>
+//     </div>
+//   );
+// }
