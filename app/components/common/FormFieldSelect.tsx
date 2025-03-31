@@ -1,8 +1,6 @@
 import { type UseFormReturn } from "react-hook-form";
 import {
-  Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -15,6 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useFetcher } from "react-router";
+import { useEffect } from "react";
+import type { loader as MatchListLoader } from "~/routes/match-list";
 
 export function FormFieldSelect({
   form,
@@ -23,6 +24,14 @@ export function FormFieldSelect({
   form: UseFormReturn<any>;
   name: string;
 }) {
+  const fetcher = useFetcher<typeof MatchListLoader>();
+
+  useEffect(() => {
+    fetcher.load("/match-list");
+  }, []);
+
+  const { data } = fetcher;
+
   return (
     <FormField
       control={form.control}
@@ -30,18 +39,27 @@ export function FormFieldSelect({
       render={({ field }) => (
         <FormItem>
           <FormLabel>Match</FormLabel>
-          <Select onValueChange={field.onChange} defaultValue={field.value}>
-            <FormControl>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a match" />
-              </SelectTrigger>
-            </FormControl>
-            <SelectContent>
-              <SelectItem value="m@example.com">m@example.com</SelectItem>
-              <SelectItem value="m@google.com">m@google.com</SelectItem>
-              <SelectItem value="m@support.com">m@support.com</SelectItem>
-            </SelectContent>
-          </Select>
+          {fetcher.state === "loading" ? (
+            <div>Loading...</div>
+          ) : (
+            fetcher.data?.matches && (
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a match" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {data?.matches?.map((match) => (
+                    <SelectItem key={match.id} value={match.id}>
+                      {match.matchNumber} | {match.homeTeam.name} VS{" "}
+                      {match.awayTeam.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )
+          )}
           <FormMessage />
         </FormItem>
       )}

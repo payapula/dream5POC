@@ -24,9 +24,11 @@ const formSchema = z.object({
   User5: z.string().min(1).max(4),
 });
 
+type AddEditFormType = z.infer<typeof formSchema>;
+
 export function AddMatchDetailsForm() {
   const submit = useSubmit();
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<AddEditFormType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       matchId: "",
@@ -38,7 +40,7 @@ export function AddMatchDetailsForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: AddEditFormType) {
     const formData = new FormData();
 
     Object.entries(values).forEach(([key, value]) => {
