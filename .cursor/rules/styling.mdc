@@ -8,3 +8,4 @@ alwaysApply: false
 - Follow Shadcn UI component guidelines and best practices.
 - Use only mobile specific styles.
 - Do not provide desktop specific styles as our app is MOBILE ONLY.
+- Use theming from [app.css](mdc:app/app.css) and [components.json](mdc:components.json) from ShadCn

@@ -1,5 +1,7 @@
 import type { Route } from "./+types/dashboard";
 import { prisma } from "~/utils/db.server";
+import { useLoaderData } from "react-router";
+import { AddEditMatchDetails } from "~/components/common/AddEditMatchDetails";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Dream5 | Dashboard" }];
@@ -74,66 +76,70 @@ export async function loader({}: Route.LoaderArgs) {
   return { users: rankedData };
 }
 
-export default function Dashboard({ loaderData }: Route.ComponentProps) {
-  const { users } = loaderData;
-
+export default function Dashboard({}: Route.ComponentProps) {
   return (
     <div>
       <div className="p-4">
-        <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
-
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    User Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Ranking
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total Score
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Matches Won
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Matches Lost
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    1Up
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {users.map((user) => (
-                  <tr key={user.id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {user.displayName}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {user.ranking}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {user.totalScore}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {user.matchesWon}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {user.matchesLost}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {user.oneUp}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <div className="flex justify-between items-baseline mb-4">
+          <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+          <AddEditMatchDetails />
         </div>
+        <ResultsTable />
+      </div>
+    </div>
+  );
+}
+
+function ResultsTable() {
+  const { users } = useLoaderData<typeof loader>();
+
+  return (
+    <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                User Name
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Ranking
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Total Score
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Matches Won
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Matches Lost
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                1Up
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {users.map((user) => (
+              <tr key={user.id}>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {user.displayName}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">{user.ranking}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {user.totalScore}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {user.matchesWon}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {user.matchesLost}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">{user.oneUp}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
