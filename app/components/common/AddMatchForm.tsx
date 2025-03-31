@@ -36,16 +36,8 @@ export function AddMatchDetailsForm() {
     },
   });
 
-  //   // 2. Define a submit handler.
-  //   function onSubmit(values: z.infer<typeof formSchema>) {
-  //     // Do something with the form values.
-  //     // ✅ This will be type-safe and validated.
-  //     console.log(values);
-  //   }
-
   return (
     <Form {...form}>
-      {/* <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8"> */}
       <FormFieldSelect form={form} name="matchId" />
       <div className="mt-8 mb-8 border-t border-gray-200 border-dashed"></div>
       <FormField

@@ -33,7 +33,7 @@ export function FormFieldSelect({
           <Select onValueChange={field.onChange} defaultValue={field.value}>
             <FormControl>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a verified email to display" />
+                <SelectValue placeholder="Select a match" />
               </SelectTrigger>
             </FormControl>
             <SelectContent>
