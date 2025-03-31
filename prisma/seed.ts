@@ -8,6 +8,7 @@ const prisma = new PrismaClient();
 await prisma.match.deleteMany();
 await prisma.team.deleteMany();
 await prisma.user.deleteMany();
+await prisma.userScore.deleteMany();
 
 /**
  * Create teams
@@ -64,28 +65,28 @@ await prisma.user.createMany({
   data: [
     {
       id: "1",
-      name: "Bharathi Kannan",
-      displayName: "BK",
-    },
-    {
-      id: "2",
       name: "Karthik",
       displayName: "Assasino",
     },
     {
-      id: "3",
+      id: "2",
       name: "Naveen",
       displayName: "NKutty",
     },
     {
+      id: "3",
+      name: "Hari Prasad",
+      displayName: "HP",
+    },
+    {
       id: "4",
-      name: "Balamurali",
-      displayName: "Bala",
+      name: "Bharathi Kannan",
+      displayName: "BK",
     },
     {
       id: "5",
-      name: "Hari Prasad",
-      displayName: "HP",
+      name: "Balamurali",
+      displayName: "Bala",
     },
   ],
 });
@@ -95,4 +96,37 @@ await prisma.user.createMany({
  */
 await prisma.match.createMany({
   data: matchSeedData,
+});
+
+/**
+ * Create User Scores
+ */
+await prisma.userScore.createMany({
+  data: [
+    {
+      matchId: "1",
+      score: 866,
+      userId: "1",
+    },
+    {
+      matchId: "1",
+      score: 884,
+      userId: "2",
+    },
+    {
+      matchId: "1",
+      score: 768,
+      userId: "3",
+    },
+    {
+      matchId: "1",
+      score: 1011,
+      userId: "4",
+    },
+    {
+      matchId: "1",
+      score: 832,
+      userId: "5",
+    },
+  ],
 });

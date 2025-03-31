@@ -60,7 +60,7 @@ export default function App() {
 
 function Header() {
   return (
-    <header className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50">
+    <header className="bg-white border-b border-gray-200 z-50">
       <nav className="container mx-auto px-4 h-14 flex items-center justify-between">
         <Link to="/" className="text-xl font-semibold">
           Dream5
