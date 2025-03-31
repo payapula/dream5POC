@@ -1,7 +1,3 @@
-import type { Match } from "@prisma/client";
-
-// type MatchSeedData = Omit<Partial<Match>, "createdAt" | "updatedAt">;
-
 export const matchSeedData = [
   {
     id: "1",
