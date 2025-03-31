@@ -13,9 +13,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { FormFieldSelect } from "./FormFieldSelect";
+import { useSubmit } from "react-router";
 
 const formSchema = z.object({
-  matchId: z.string().min(1).max(4),
+  matchId: z.string(),
   User1: z.string().min(1).max(4),
   User2: z.string().min(1).max(4),
   User3: z.string().min(1).max(4),
@@ -24,6 +25,7 @@ const formSchema = z.object({
 });
 
 export function AddMatchDetailsForm() {
+  const submit = useSubmit();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -36,78 +38,90 @@ export function AddMatchDetailsForm() {
     },
   });
 
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    const formData = new FormData();
+
+    Object.entries(values).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+
+    submit(formData, { method: "post" });
+  }
+
   return (
     <Form {...form}>
-      <FormFieldSelect form={form} name="matchId" />
-      <div className="mt-8 mb-8 border-t border-gray-200 border-dashed"></div>
-      <FormField
-        control={form.control}
-        name="User1"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>User 1 Score</FormLabel>
-            <FormControl>
-              <Input placeholder="100" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={form.control}
-        name="User2"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>User 2 Score</FormLabel>
-            <FormControl>
-              <Input placeholder="100" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={form.control}
-        name="User3"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>User 3 Score</FormLabel>
-            <FormControl>
-              <Input placeholder="100" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={form.control}
-        name="User4"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>User 4 Score</FormLabel>
-            <FormControl>
-              <Input placeholder="100" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={form.control}
-        name="User5"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>User 5 Score</FormLabel>
-            <FormControl>
-              <Input placeholder="100" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <Button type="submit" className="w-full">
-        Submit
-      </Button>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormFieldSelect form={form} name="matchId" />
+        <div className="mt-8 mb-8 border-t border-gray-200 border-dashed"></div>
+        <FormField
+          control={form.control}
+          name="User1"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>User 1 Score</FormLabel>
+              <FormControl>
+                <Input placeholder="100" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="User2"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>User 2 Score</FormLabel>
+              <FormControl>
+                <Input placeholder="100" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="User3"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>User 3 Score</FormLabel>
+              <FormControl>
+                <Input placeholder="100" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="User4"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>User 4 Score</FormLabel>
+              <FormControl>
+                <Input placeholder="100" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="User5"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>User 5 Score</FormLabel>
+              <FormControl>
+                <Input placeholder="100" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit" className="w-full">
+          Submit
+        </Button>
+      </form>
     </Form>
   );
 }
