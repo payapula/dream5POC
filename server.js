@@ -1,0 +1,1 @@
+require("./server/prisma-setup");
