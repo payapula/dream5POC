@@ -1,4 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+// import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client-generated";
 import chalk from "chalk";
 import { singleton } from "./singleton.server";
 

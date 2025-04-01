@@ -6,9 +6,17 @@ import tsconfigPaths from "vite-tsconfig-paths";
 export default defineConfig(({ command }) => ({
   ssr: {
     noExternal: command === "build" ? true : undefined,
+    optimizeDeps: {
+      include: ["@prisma/client-generated"],
+    },
   },
   plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
   server: {
     host: true,
+  },
+  build: {
+    rollupOptions: {
+      external: ["@prisma/client-generated"],
+    },
   },
 }));
