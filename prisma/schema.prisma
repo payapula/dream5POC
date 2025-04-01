@@ -6,11 +6,6 @@ generator client {
   output   = "../node_modules/@prisma/client-generated"
 }
 
-generator erd {
-  provider = "prisma-erd-generator"
-  output = "./ERD.png"
-}
-
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
