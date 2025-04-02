@@ -1,14 +1,14 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client-generated";
 import { matchSeedData } from "./seedData/matches";
 const prisma = new PrismaClient();
 
 /**
  * Delete all existing data
  */
+await prisma.userScore.deleteMany();
+await prisma.user.deleteMany();
 await prisma.match.deleteMany();
 await prisma.team.deleteMany();
-await prisma.user.deleteMany();
-await prisma.userScore.deleteMany();
 
 /**
  * Create teams
