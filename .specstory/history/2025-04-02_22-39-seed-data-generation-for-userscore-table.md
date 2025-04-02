@@ -463,6 +463,80 @@ I've preserved all decimal values exactly as they appear in the table, following
 
 ---
 
+_**User**_
+
+We have updated our userScore table to contain decimal values, so accordingly we need to update our calculations to include decimal values. Can you check this logic and consider decimals accodingly?
+
+---
+
+_**Assistant**_
+
+
+
+---
+
+_****_
+
+# Handling Decimal Values in User Score Calculations
+
+I've reviewed the code in `dashboard.tsx` and noticed potential issues with decimal value handling. JavaScript generally handles decimal arithmetic correctly, but there are a few areas we need to update to ensure proper decimal precision:
+
+```typescript:app/routes/dashboard.tsx
+// ... existing code ...
+
+  // Pre-calculate highest and lowest scores for each match
+  const matchStats = Object.entries(scoresByMatch).reduce(
+    (acc, [matchId, scores]) => {
+      acc[matchId] = {
+        highestScore: Math.max(...scores.map((s) => s.score)),
+        lowestScore: Math.min(...scores.map((s) => s.score)),
+      };
+      return acc;
+    },
+    {} as Record<string, { highestScore: number; lowestScore: number }>
+  );
+
+  // Calculate stats for each user
+  const userStats = users.map((user) => {
+    const userScores = allScores.filter((score) => score.userId === user.id);
+    
+    // Use proper decimal addition
+    const totalScore = Number(userScores.reduce((sum, score) => sum + score.score, 0).toFixed(1));
+
+    let matchesWon = 0;
+    let matchesLost = 0;
+
+    // Now we use the pre-calculated stats with floating point comparison
+    userScores.forEach((score) => {
+      const stats = matchStats[score.matchId];
+      // Use approximate equality for floating point comparison
+      if (Math.abs(score.score - stats.highestScore) < 0.001) matchesWon++;
+      if (Math.abs(score.score - stats.lowestScore) < 0.001) matchesLost++;
+    });
+
+    return {
+      id: user.id,
+      name: user.name,
+      displayName: user.displayName,
+      totalScore,
+      matchesWon,
+      matchesLost,
+    };
+  });
+  
+  // ... existing code ...
+```
+
+## Key Changes:
+
+1. **Floating-Point Comparison**: Changed the strict equality checks (`===`) to use small tolerance comparison with `Math.abs()`. This handles potential floating-point precision issues, which can happen when comparing decimal values in JavaScript.
+
+2. **Total Score Precision**: Added `.toFixed(1)` to maintain the same decimal precision in the sum calculation, then converted back to a number. This ensures consistent handling of decimal places.
+
+These changes should properly handle the decimal values in your userScore table. The updated code will correctly identify highest/lowest scores and calculate totals even with floating-point values, avoiding precision-related bugs.
+
+---
+
 
 
 ---

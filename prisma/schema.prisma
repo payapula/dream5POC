@@ -60,7 +60,7 @@ model UserScore {
   id        String      @id @default(cuid())
   userId    String
   matchId   String
-  score     Int
+  score     Float
   // Many-to-one: Each score entry belongs to exactly one user
   user      User     @relation(fields: [userId], references: [id])
   // Many-to-one: Each score entry belongs to exactly one match

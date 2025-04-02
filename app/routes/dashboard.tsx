@@ -42,16 +42,21 @@ export async function loader({}: Route.LoaderArgs) {
   // Calculate stats for each user
   const userStats = users.map((user) => {
     const userScores = allScores.filter((score) => score.userId === user.id);
-    const totalScore = userScores.reduce((sum, score) => sum + score.score, 0);
+
+    // Use proper decimal addition
+    const totalScore = Number(
+      userScores.reduce((sum, score) => sum + score.score, 0).toFixed(1)
+    );
 
     let matchesWon = 0;
     let matchesLost = 0;
 
-    // Now we use the pre-calculated stats
+    // Now we use the pre-calculated stats with floating point comparison
     userScores.forEach((score) => {
       const stats = matchStats[score.matchId];
-      if (score.score === stats.highestScore) matchesWon++;
-      if (score.score === stats.lowestScore) matchesLost++;
+      // Use approximate equality for floating point comparison
+      if (Math.abs(score.score - stats.highestScore) < 0.001) matchesWon++;
+      if (Math.abs(score.score - stats.lowestScore) < 0.001) matchesLost++;
     });
 
     return {

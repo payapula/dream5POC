@@ -291,5 +291,32 @@ await prisma.userScore.createMany({
       score: 495,
       userId: "3",
     },
+
+    // Match 8 (RCB vs GT)
+    {
+      matchId: "8",
+      score: 785,
+      userId: "1",
+    },
+    {
+      matchId: "8",
+      score: 685,
+      userId: "2",
+    },
+    {
+      matchId: "8",
+      score: 651,
+      userId: "5",
+    },
+    {
+      matchId: "8",
+      score: 796.5,
+      userId: "4",
+    },
+    {
+      matchId: "8",
+      score: 510.5,
+      userId: "3",
+    },
   ],
 });
