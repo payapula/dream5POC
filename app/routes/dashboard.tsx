@@ -78,7 +78,7 @@ export async function loader({}: Route.LoaderArgs) {
       oneUp: index > 0 ? array[index - 1].totalScore - user.totalScore : 0,
     }));
 
-  return { users: rankedData };
+  return { users: rankedData, totalMatches: Object.keys(scoresByMatch).length };
 }
 
 export async function action({ request }: Route.ActionArgs) {
