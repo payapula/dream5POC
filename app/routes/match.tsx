@@ -1,6 +1,8 @@
 import type { Route } from "./+types/match";
 import { prisma } from "~/utils/db.server";
 import { MatchResultCard } from "~/components/match/matchresultcard";
+import { Link } from "react-router";
+import { ArrowLeft } from "lucide-react";
 
 let isInitialRequest = true;
 let cache = new Map();
@@ -82,6 +84,13 @@ clientLoader.hydrate = true;
 export function HydrateFallback() {
   return (
     <div className="p-4">
+      <Link
+        to="/matches"
+        className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4"
+      >
+        <ArrowLeft className="w-4 h-4 mr-1" />
+        Back to Matches
+      </Link>
       <h1 className="text-2xl font-bold mb-4">Match Result</h1>
       <div className="animate-pulse">
         <div className="h-24 bg-gray-200 rounded mb-4"></div>
@@ -93,6 +102,13 @@ export function HydrateFallback() {
 export default function Match() {
   return (
     <div className="p-4">
+      <Link
+        to="/matches"
+        className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4"
+      >
+        <ArrowLeft className="w-4 h-4 mr-1" />
+        Back to Matches
+      </Link>
       <h1 className="text-2xl font-bold mb-4">Match Result</h1>
       <MatchResultCard />
     </div>
