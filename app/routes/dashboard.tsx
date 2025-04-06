@@ -130,6 +130,7 @@ export async function action({ request }: Route.ActionArgs) {
 
 export default function Dashboard({}: Route.ComponentProps) {
   const [clickCount, setClickCount] = useState(0);
+  const showAddMatchDetails = clickCount > 5 || import.meta.env.DEV;
   return (
     <div>
       <div className="p-4">
@@ -140,7 +141,7 @@ export default function Dashboard({}: Route.ComponentProps) {
           >
             Dashboard
           </h1>
-          {clickCount > 5 && <AddEditMatchDetails />}
+          {showAddMatchDetails && <AddEditMatchDetails />}
         </div>
         <ScoreCard />
       </div>

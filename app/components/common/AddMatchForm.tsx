@@ -16,7 +16,7 @@ import { FormFieldSelect } from "./FormFieldSelect";
 import { useFetcher, useSubmit, useLoaderData } from "react-router";
 import type { loader as MatchListLoader } from "~/routes/match-list";
 import type { loader as UserListLoader } from "~/routes/dashboard";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const formSchema = z.object({
   matchId: z.string(),
@@ -30,6 +30,7 @@ const formSchema = z.object({
 type AddEditFormType = z.infer<typeof formSchema>;
 
 export function AddMatchDetailsForm() {
+  const [loading, setLoading] = useState(false);
   const submit = useSubmit();
   const users = useLoaderData<typeof UserListLoader>();
   const form = useForm<AddEditFormType>({
@@ -72,13 +73,21 @@ export function AddMatchDetailsForm() {
         User4: "",
         User5: "",
       });
-      const response = await fetch(`/played-matches/${matchId}`);
-      const data = await response.json();
-      for (const userScore of data.userScores) {
-        const userId = userScore.userId;
-        // TODO: fix this
-        //@ts-expect-error - userId is a string
-        form.setValue(`User${userId}`, userScore.score.toString());
+      try {
+        setLoading(true);
+        // await sleep(2000);
+        const response = await fetch(`/played-matches/${matchId}`);
+        const data = await response.json();
+        for (const userScore of data.userScores) {
+          const userId = userScore.userId;
+          // TODO: fix this
+          //@ts-expect-error - userId is a string
+          form.setValue(`User${userId}`, userScore.score.toString());
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -101,7 +110,7 @@ export function AddMatchDetailsForm() {
               <FormItem>
                 <FormLabel>{user.displayName}</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} loading={loading} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
