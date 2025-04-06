@@ -58,6 +58,42 @@ export async function loader({}: Route.LoaderArgs) {
   return { matches: matchesWithStats };
 }
 
+let isInitialRequest = true;
+let cache = new Map();
+
+export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
+  const cacheKey = `matches-${new Date().toISOString().split("T")[0]}`;
+
+  if (isInitialRequest) {
+    isInitialRequest = false;
+    const serverData = await serverLoader();
+    cache.set(cacheKey, serverData);
+    return serverData;
+  }
+
+  const cachedData = cache.get(cacheKey);
+  if (cachedData) {
+    return cachedData;
+  }
+
+  const serverData = await serverLoader();
+  cache.set(cacheKey, serverData);
+  return serverData;
+}
+
+clientLoader.hydrate = true;
+
+export function HydrateFallback() {
+  return (
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">Matches</h1>
+      <div className="animate-pulse">
+        <div className="h-24 bg-gray-200 rounded mb-4"></div>
+      </div>
+    </div>
+  );
+}
+
 export default function Matches() {
   return (
     <div className="p-4">

@@ -5,7 +5,6 @@ import { useLoaderData } from "react-router";
 
 export function MatchesCard() {
   const { matches } = useLoaderData<typeof MatchesLoader>();
-  console.log("matches", matches);
 
   return (
     <div className="container mx-auto">
