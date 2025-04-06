@@ -65,6 +65,11 @@ function Header() {
         <Link to="/" className="text-xl font-semibold">
           Dream5
         </Link>
+        {import.meta.env.DEV && (
+          <span className="px-2 py-1 text-xs font-medium bg-red-400 text-white rounded-full">
+            DEV
+          </span>
+        )}
         <Link
           to="/matches"
           className="px-4 py-2 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary/80 active:bg-primary/90 transition-colors"
