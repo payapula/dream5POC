@@ -13,6 +13,9 @@ export default defineConfig(({ command }) => ({
   plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
   server: {
     host: true,
+    watch: {
+      ignored: ["**/.specstory/**"],
+    },
   },
   build: {
     rollupOptions: {
