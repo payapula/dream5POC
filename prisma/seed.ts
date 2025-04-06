@@ -71,7 +71,7 @@ await prisma.user.createMany({
     {
       id: "2",
       name: "Naveen",
-      displayName: "NKutty",
+      displayName: "Naveen",
     },
     {
       id: "3",
@@ -305,7 +305,7 @@ await prisma.userScore.createMany({
     },
     {
       matchId: "8",
-      score: 651,
+      score: 510.5,
       userId: "5",
     },
     {
@@ -315,7 +315,61 @@ await prisma.userScore.createMany({
     },
     {
       matchId: "8",
-      score: 510.5,
+      score: 651,
+      userId: "3",
+    },
+
+    // Match 9 (RCB vs GT)
+    {
+      matchId: "9",
+      score: 602,
+      userId: "1",
+    },
+    {
+      matchId: "9",
+      score: 483,
+      userId: "2",
+    },
+    {
+      matchId: "9",
+      score: 540,
+      userId: "5",
+    },
+    {
+      matchId: "9",
+      score: 749,
+      userId: "4",
+    },
+    {
+      matchId: "9",
+      score: 630.5,
+      userId: "3",
+    },
+
+    // Match 10 (RCB vs GT)
+    {
+      matchId: "10",
+      score: 1010.5,
+      userId: "1",
+    },
+    {
+      matchId: "10",
+      score: 554.5,
+      userId: "2",
+    },
+    {
+      matchId: "10",
+      score: 965.5,
+      userId: "5",
+    },
+    {
+      matchId: "10",
+      score: 863.5,
+      userId: "4",
+    },
+    {
+      matchId: "10",
+      score: 826.5,
       userId: "3",
     },
   ],
