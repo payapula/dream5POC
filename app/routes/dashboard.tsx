@@ -2,6 +2,7 @@ import type { Route } from "./+types/dashboard";
 import { prisma } from "~/utils/db.server";
 import { AddEditMatchDetails } from "~/components/common/AddEditMatchDetails";
 import { ScoreCard } from "~/components/overallscore/scorecard";
+import { useState } from "react";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Dream5 | Dashboard" }];
@@ -123,12 +124,18 @@ export async function action({ request }: Route.ActionArgs) {
 }
 
 export default function Dashboard({}: Route.ComponentProps) {
+  const [clickCount, setClickCount] = useState(0);
   return (
     <div>
       <div className="p-4">
         <div className="flex justify-between items-baseline mb-4">
-          <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
-          <AddEditMatchDetails />
+          <h1
+            className="text-2xl font-bold mb-4"
+            onClick={() => setClickCount(clickCount + 1)}
+          >
+            Dashboard
+          </h1>
+          {clickCount > 5 && <AddEditMatchDetails />}
         </div>
         <ScoreCard />
       </div>
