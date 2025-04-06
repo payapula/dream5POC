@@ -20,11 +20,11 @@ import { useEffect } from "react";
 
 const formSchema = z.object({
   matchId: z.string(),
-  User1: z.string().min(1).max(4),
-  User2: z.string().min(1).max(4),
-  User3: z.string().min(1).max(4),
-  User4: z.string().min(1).max(4),
-  User5: z.string().min(1).max(4),
+  User1: z.string().min(1).max(7),
+  User2: z.string().min(1).max(7),
+  User3: z.string().min(1).max(7),
+  User4: z.string().min(1).max(7),
+  User5: z.string().min(1).max(7),
 });
 
 type AddEditFormType = z.infer<typeof formSchema>;
