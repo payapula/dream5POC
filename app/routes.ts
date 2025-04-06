@@ -9,4 +9,5 @@ export default [
    * Resource Routes
    */
   route("match-list", "routes/match-list.ts"),
+  route("played-matches/:matchId", "routes/played-matches.ts"),
 ] satisfies RouteConfig;

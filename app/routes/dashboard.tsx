@@ -117,7 +117,9 @@ export async function action({ request }: Route.ActionArgs) {
     }
   }
   await prisma.$transaction(upserts);
-  return null;
+  return {
+    updateStatus: "Success",
+  };
 }
 
 export default function Dashboard({}: Route.ComponentProps) {

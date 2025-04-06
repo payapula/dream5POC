@@ -16,6 +16,7 @@ import { FormFieldSelect } from "./FormFieldSelect";
 import { useFetcher, useSubmit, useLoaderData } from "react-router";
 import type { loader as MatchListLoader } from "~/routes/match-list";
 import type { loader as UserListLoader } from "~/routes/dashboard";
+import { useEffect } from "react";
 
 const formSchema = z.object({
   matchId: z.string(),
@@ -43,6 +44,8 @@ export function AddMatchDetailsForm() {
     },
   });
 
+  const matchId = form.watch("matchId");
+
   function onSubmit(values: AddEditFormType) {
     const formData = new FormData();
 
@@ -54,6 +57,33 @@ export function AddMatchDetailsForm() {
   }
 
   const userList = users?.users;
+
+  useEffect(() => {
+    if (!matchId) {
+      return;
+    }
+
+    async function fetchUserScoresForMatch() {
+      form.reset({
+        matchId,
+        User1: "",
+        User2: "",
+        User3: "",
+        User4: "",
+        User5: "",
+      });
+      const response = await fetch(`/played-matches/${matchId}`);
+      const data = await response.json();
+      for (const userScore of data.userScores) {
+        const userId = userScore.userId;
+        // TODO: fix this
+        //@ts-expect-error - userId is a string
+        form.setValue(`User${userId}`, userScore.score.toString());
+      }
+    }
+
+    fetchUserScoresForMatch();
+  }, [matchId]);
 
   return (
     <Form {...form}>
@@ -71,7 +101,7 @@ export function AddMatchDetailsForm() {
               <FormItem>
                 <FormLabel>{user.displayName}</FormLabel>
                 <FormControl>
-                  <Input placeholder="100" {...field} />
+                  <Input {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
