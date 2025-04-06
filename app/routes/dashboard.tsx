@@ -55,9 +55,14 @@ export async function loader({}: Route.LoaderArgs) {
     // Now we use the pre-calculated stats with floating point comparison
     userScores.forEach((score) => {
       const stats = matchStats[score.matchId];
-      // Use approximate equality for floating point comparison
-      if (Math.abs(score.score - stats.highestScore) < 0.001) matchesWon++;
-      if (Math.abs(score.score - stats.lowestScore) < 0.001) matchesLost++;
+      /**
+       * If any match is not played (or missed by entire team), the stats will be 0
+       * This is a hack to avoid calculating matches not played as won or lost
+       */
+      if (stats.highestScore > 0 && stats.lowestScore > 0) {
+        if (Math.abs(score.score - stats.highestScore) < 0.001) matchesWon++;
+        if (Math.abs(score.score - stats.lowestScore) < 0.001) matchesLost++;
+      }
     });
 
     return {
