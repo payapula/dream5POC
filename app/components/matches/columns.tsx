@@ -21,7 +21,7 @@ export const columns: ColumnDef<Match>[] = [
     cell: ({ row }) => {
       return (
         <Link
-          to={`/matches/${row.original.id}`}
+          to={`/match/${row.original.id}`}
           className="text-blue-600 hover:underline"
         >
           {row.original.details}
