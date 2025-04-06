@@ -22,6 +22,7 @@ export const columns: ColumnDef<Match>[] = [
       return (
         <Link
           to={`/match/${row.original.id}`}
+          prefetch="intent"
           className="text-blue-600 hover:underline"
         >
           {row.original.details}

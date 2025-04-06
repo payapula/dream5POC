@@ -2,6 +2,9 @@ import type { Route } from "./+types/match";
 import { prisma } from "~/utils/db.server";
 import { MatchResultCard } from "~/components/match/matchresultcard";
 
+let isInitialRequest = true;
+let cache = new Map();
+
 export async function loader({ params }: Route.LoaderArgs) {
   const { matchId } = params;
 
@@ -48,6 +51,43 @@ export async function loader({ params }: Route.LoaderArgs) {
   };
 
   return { match: matchDetails, results: userResults };
+}
+
+export async function clientLoader({
+  serverLoader,
+  params,
+}: Route.ClientLoaderArgs) {
+  const matchId = params.matchId;
+  const cacheKey = `match-${matchId}`;
+
+  if (isInitialRequest) {
+    isInitialRequest = false;
+    const serverData = await serverLoader();
+    cache.set(cacheKey, serverData);
+    return serverData;
+  }
+
+  const cachedData = cache.get(cacheKey);
+  if (cachedData) {
+    return cachedData;
+  }
+
+  const serverData = await serverLoader();
+  cache.set(cacheKey, serverData);
+  return serverData;
+}
+
+clientLoader.hydrate = true;
+
+export function HydrateFallback() {
+  return (
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">Match Result</h1>
+      <div className="animate-pulse">
+        <div className="h-24 bg-gray-200 rounded mb-4"></div>
+      </div>
+    </div>
+  );
 }
 
 export default function Match() {
