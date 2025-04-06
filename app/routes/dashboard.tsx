@@ -81,10 +81,43 @@ export async function loader({}: Route.LoaderArgs) {
   return { users: rankedData, totalMatches: Object.keys(scoresByMatch).length };
 }
 
+const userKeyMapping: Record<string, string> = {
+  User1: "1",
+  User2: "2",
+  User3: "3",
+  User4: "4",
+  User5: "5",
+};
+
 export async function action({ request }: Route.ActionArgs) {
   let formData = await request.formData();
-  console.log("formData");
-  console.log(formData);
+  let upserts = [];
+  for (const [key, value] of formData) {
+    const matchId = formData.get("matchId") as string;
+    if (key in userKeyMapping && key !== "matchId") {
+      const userId = userKeyMapping[key];
+      upserts.push(
+        prisma.userScore.upsert({
+          where: {
+            userId_matchId: {
+              userId,
+              matchId,
+            },
+          },
+          update: {
+            score: Number(value),
+          },
+          create: {
+            userId,
+            matchId,
+            score: Number(value),
+          },
+        })
+      );
+    }
+  }
+  await prisma.$transaction(upserts);
+  return null;
 }
 
 export default function Dashboard({}: Route.ComponentProps) {
@@ -93,7 +126,7 @@ export default function Dashboard({}: Route.ComponentProps) {
       <div className="p-4">
         <div className="flex justify-between items-baseline mb-4">
           <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
-          {/* <AddEditMatchDetails /> */}
+          <AddEditMatchDetails />
         </div>
         <ScoreCard />
       </div>
