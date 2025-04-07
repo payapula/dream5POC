@@ -17,7 +17,10 @@ export const columns: ColumnDef<UserMatch>[] = [
       const matchNumber = row.getValue("matchNumber") as number;
 
       return (
-        <Link to={`/match/${matchId}`} className="text-primary hover:underline">
+        <Link
+          to={`/match/${matchId}`}
+          className="text-blue-600 hover:underline"
+        >
           {matchNumber}
         </Link>
       );

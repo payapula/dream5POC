@@ -17,7 +17,7 @@ export const columns: ColumnDef<User>[] = [
       const name = row.getValue("name") as string;
 
       return (
-        <Link to={`/user/${userId}`} className="text-primary hover:underline">
+        <Link to={`/user/${userId}`} className="text-blue-600 hover:underline">
           {name}
         </Link>
       );

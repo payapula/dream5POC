@@ -91,7 +91,7 @@ export function HydrateFallback() {
         <ArrowLeft className="w-4 h-4 mr-1" />
         Back to Matches
       </Link>
-      <h1 className="text-2xl font-bold mb-4">Match Result</h1>
+      <h1 className="text-2xl font-bold mb-4 text-center">Match Result</h1>
       <div className="animate-pulse">
         <div className="h-24 bg-gray-200 rounded mb-4"></div>
       </div>
@@ -109,7 +109,7 @@ export default function Match() {
         <ArrowLeft className="w-4 h-4 mr-1" />
         Back to Matches
       </Link>
-      <h1 className="text-2xl font-bold mb-4">Match Result</h1>
+      <h1 className="text-2xl font-bold mb-4 text-center">Match Result</h1>
       <MatchResultCard />
     </div>
   );

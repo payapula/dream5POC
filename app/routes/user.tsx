@@ -10,9 +10,9 @@ export default function UserDetails() {
 
   return (
     <div className="container py-4 space-y-4">
-      <h1 className="text-2xl font-bold">User Details</h1>
+      <h1 className="text-2xl font-bold text-center">User Details</h1>
 
-      <Card>
+      <Card className="mx-4">
         <CardHeader>
           <CardTitle>{user.name}</CardTitle>
         </CardHeader>
@@ -24,7 +24,7 @@ export default function UserDetails() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="mx-4">
         <CardHeader>
           <CardTitle>Matches Played</CardTitle>
         </CardHeader>

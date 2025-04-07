@@ -4,7 +4,7 @@ import { prisma } from "~/utils/db.server";
 export default function Users() {
   return (
     <div className="container py-4 space-y-4">
-      <h1 className="text-2xl font-bold">Users</h1>
+      <h1 className="text-2xl font-bold text-center">Users</h1>
       <UserListCard />
     </div>
   );

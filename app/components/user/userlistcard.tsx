@@ -8,7 +8,7 @@ export function UserListCard() {
   const { users } = useLoaderData<typeof UsersLoader>();
 
   return (
-    <Card>
+    <Card className="mx-4">
       <CardHeader>
         <CardTitle>User List</CardTitle>
       </CardHeader>
