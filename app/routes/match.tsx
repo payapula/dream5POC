@@ -3,9 +3,9 @@ import { prisma } from "~/utils/db.server";
 import { MatchResultCard } from "~/components/match/matchresultcard";
 import { Link } from "react-router";
 import { ArrowLeft } from "lucide-react";
+import { matchCache } from "~/utils/match-cache";
 
 let isInitialRequest = true;
-let cache = new Map();
 
 export async function loader({ params }: Route.LoaderArgs) {
   const { matchId } = params;
@@ -60,22 +60,21 @@ export async function clientLoader({
   params,
 }: Route.ClientLoaderArgs) {
   const matchId = params.matchId;
-  const cacheKey = `match-${matchId}`;
 
   if (isInitialRequest) {
     isInitialRequest = false;
     const serverData = await serverLoader();
-    cache.set(cacheKey, serverData);
+    matchCache.set(matchId, serverData);
     return serverData;
   }
 
-  const cachedData = cache.get(cacheKey);
+  const cachedData = matchCache.get(matchId);
   if (cachedData) {
     return cachedData;
   }
 
   const serverData = await serverLoader();
-  cache.set(cacheKey, serverData);
+  matchCache.set(matchId, serverData);
   return serverData;
 }
 

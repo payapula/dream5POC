@@ -3,6 +3,7 @@ import { prisma } from "~/utils/db.server";
 import { AddEditMatchDetails } from "~/components/common/AddEditMatchDetails";
 import { ScoreCard } from "~/components/overallscore/scorecard";
 import { useState } from "react";
+import { matchCache } from "~/utils/match-cache";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Dream5 | Dashboard" }];
@@ -98,8 +99,9 @@ const userKeyMapping: Record<string, string> = {
 export async function action({ request }: Route.ActionArgs) {
   let formData = await request.formData();
   let upserts = [];
+  const matchId = formData.get("matchId") as string;
+
   for (const [key, value] of formData) {
-    const matchId = formData.get("matchId") as string;
     if (key in userKeyMapping && key !== "matchId") {
       const userId = userKeyMapping[key];
       upserts.push(
@@ -122,7 +124,14 @@ export async function action({ request }: Route.ActionArgs) {
       );
     }
   }
+
   await prisma.$transaction(upserts);
+
+  // Invalidate the cache for this specific match
+  if (matchId) {
+    matchCache.invalidate(matchId);
+  }
+
   return {
     updateStatus: "Success",
   };

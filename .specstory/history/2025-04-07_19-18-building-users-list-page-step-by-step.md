@@ -744,6 +744,18 @@ export async function loader({ params }: { params: { userId: string } }) {
 
 ---
 
+_**User**_
+
+@match.tsx  How do I delete the cache (line 8) for a match when user updates match details in the @dashboard.tsx page with the help of @AddEditMatchDetails.tsx Modal? Is there a way?
+
+---
+
+_**Assistant**_
+
+
+
+---
+
 
 
 ---
