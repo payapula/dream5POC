@@ -6,6 +6,12 @@ export default [
   route("match/:matchId", "routes/match.tsx"),
 
   /**
+   * Users
+   */
+  route("users", "routes/users.tsx"),
+  route("user/:userId", "routes/user.tsx"),
+
+  /**
    * Resource Routes
    */
   route("match-list", "routes/match-list.ts"),
