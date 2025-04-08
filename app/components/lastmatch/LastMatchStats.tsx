@@ -21,15 +21,21 @@ export function LastMatchStats() {
 
   const matchDate = new Date(lastMatch.date);
 
+  // Sort and get top 3 performers
+  const topPerformers = [...lastMatch.userScores]
+    // @ts-expect-error
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3);
+
   return (
-    <Card className="mb-6 bg-white shadow-sm mt-4 gap-4">
+    <Card className="mb-6 bg-white shadow-sm mt-4">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg font-semibold text-center">
           Last Match Results
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div className="flex flex-col">
             <p className="text-sm text-gray-500 text-center">
               {matchDate.toLocaleDateString()}
@@ -45,40 +51,75 @@ export function LastMatchStats() {
             </div>
           </div>
 
-          <div className="border-t pt-3">
-            <p className="text-sm font-medium mb-2 text-center">
+          <div className="border-t pt-6">
+            <p className="text-sm font-medium mb-8 text-center">
               Top Performers
             </p>
-            <div className="space-y-2">
-              {lastMatch.userScores
-                //@ts-expect-error
-                .sort((a, b) => b.score - a.score)
-                .slice(0, 3)
-                .map((score, index) => (
-                  <div
-                    //@ts-expect-error
-                    key={score.id}
-                    className="flex items-center justify-between"
-                  >
-                    <div className="flex items-center">
-                      {index === 0 && (
-                        <Trophy className="w-4 h-4 text-yellow-500 mr-2" />
-                      )}
-                      <span
-                        className={`text-sm ${
-                          index === 0 ? "bg-yellow-100 px-1 -mx-1" : ""
-                        }`}
-                      >
-                        {/* @ts-expect-error */}
-                        {score.user.displayName}
-                      </span>
-                    </div>
-                    <span className="font-medium">
-                      {/* @ts-expect-error */}
-                      {score.score.toLocaleString("en-IN")}
-                    </span>
+
+            {/* Trophy icon above the first place winner */}
+            <div className="absolute left-1/2 transform -translate-x-1/2 z-20">
+              <Trophy className="w-6 h-6 text-yellow-500 animate-pulse" />
+            </div>
+
+            {/* Podium Section */}
+            <div className="relative h-40 flex items-end justify-center top-5">
+              {/* Second Place - Left */}
+              {topPerformers.length > 1 && (
+                <div className="absolute left-2 bottom-0 w-1/3 flex flex-col items-center animate-fade-in">
+                  <div className="w-12 h-12 rounded-full bg-gray-200 border-2 border-gray-200 flex items-center justify-center overflow-hidden mb-2 relative">
+                    <span className="text-xs font-bold">2</span>
+                    <div className="absolute inset-0 bg-silver opacity-30 animate-pulse"></div>
                   </div>
-                ))}
+                  <p className="text-xs text-center font-medium truncate w-full">
+                    {/* @ts-expect-error */}
+                    {topPerformers[1]?.user.displayName}
+                  </p>
+                  <p className="text-xs font-semibold mb-1">
+                    {/* @ts-expect-error */}
+                    {topPerformers[1]?.score.toLocaleString("en-IN")}
+                  </p>
+                  <div className="w-full bg-gray-200 h-16 rounded-t-lg"></div>
+                </div>
+              )}
+
+              {/* First Place - Center */}
+              {topPerformers.length > 0 && (
+                <div className="absolute left-1/2 transform -translate-x-1/2 bottom-0 w-1/3 flex flex-col items-center z-10 animate-bounce-in">
+                  <div className="w-14 h-14 rounded-full bg-yellow-100 border-2 border-yellow-300 flex items-center justify-center overflow-hidden mb-2 relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-yellow-200 to-yellow-400 opacity-30 animate-shine"></div>
+                  </div>
+                  <p className="text-xs text-center font-medium truncate w-full">
+                    {/* @ts-expect-error */}
+                    {topPerformers[0]?.user.displayName}
+                  </p>
+                  <p className="text-xs font-semibold mb-1">
+                    {/* @ts-expect-error */}
+                    {topPerformers[0]?.score.toLocaleString("en-IN")}
+                  </p>
+                  <div className="w-full bg-yellow-200 h-24 rounded-t-lg relative">
+                    <div className="absolute top-0 inset-x-0 h-1/3 bg-gradient-to-r from-yellow-100 to-yellow-300 opacity-50 animate-shimmer"></div>
+                  </div>
+                </div>
+              )}
+
+              {/* Third Place - Right */}
+              {topPerformers.length > 2 && (
+                <div className="absolute right-2 bottom-0 w-1/3 flex flex-col items-center animate-fade-in">
+                  <div className="w-10 h-10 rounded-full bg-orange-100 border-2 border-orange-200 flex items-center justify-center overflow-hidden mb-2 relative">
+                    <span className="text-xs font-bold">3</span>
+                    <div className="absolute inset-0 bg-bronze opacity-30 animate-pulse"></div>
+                  </div>
+                  <p className="text-xs text-center font-medium truncate w-full">
+                    {/* @ts-expect-error */}
+                    {topPerformers[2]?.user.displayName}
+                  </p>
+                  <p className="text-xs font-semibold mb-1">
+                    {/* @ts-expect-error */}
+                    {topPerformers[2]?.score.toLocaleString("en-IN")}
+                  </p>
+                  <div className="w-full bg-orange-100 h-12 rounded-t-lg"></div>
+                </div>
+              )}
             </div>
           </div>
         </div>
