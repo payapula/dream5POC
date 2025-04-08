@@ -112,6 +112,70 @@ export default function Dashboard({}: Route.ComponentProps) {
 
 ---
 
+_**User**_
+
+This looks great. Let's add a button above the dashboard to invalidate the cache and do a refresh. Use a reload icon from lucide react. 
+
+---
+
+_**Assistant**_
+
+I'll add a refresh button with a reload icon from Lucide React. Here's the implementation:
+
+```typescript:app/routes/dashboard.tsx
+import type { Route } from "./+types/dashboard";
+import { prisma } from "~/utils/db.server";
+import { AddEditMatchDetails } from "~/components/common/AddEditMatchDetails";
+import { ScoreCard } from "~/components/overallscore/scorecard";
+import { useState } from "react";
+import { matchCache } from "~/utils/match-cache.client";
+import { matchesCache } from "~/utils/matches-cache.client";
+import { dashboardCache } from "~/utils/dashboard-cache.client";
+import { useRevalidator } from "@remix-run/react";
+import { RefreshCw } from "lucide-react";
+
+// ... existing code ...
+
+export default function Dashboard({}: Route.ComponentProps) {
+  const [clickCount, setClickCount] = useState(0);
+  const showAddMatchDetails = clickCount > 5 || import.meta.env.DEV;
+  const revalidator = useRevalidator();
+  
+  const handleRefresh = () => {
+    dashboardCache.invalidate();
+    revalidator.revalidate();
+  };
+
+  return (
+    <div>
+      <div className="p-4">
+        <div className="flex justify-between items-baseline mb-4">
+          <div className="flex items-center gap-2">
+            <h1
+              className="text-2xl font-bold"
+              onClick={() => setClickCount(clickCount + 1)}
+            >
+              Dashboard
+            </h1>
+            <button 
+              onClick={handleRefresh}
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              aria-label="Refresh dashboard"
+            >
+              <RefreshCw className={`w-5 h-5 text-gray-600 ${revalidator.state === 'loading' ? 'animate-spin' : ''}`} />
+            </button>
+          </div>
+          {showAddMatchDetails && <AddEditMatchDetails />}
+        </div>
+        <ScoreCard />
+      </div>
+    </div>
+  );
+}
+```
+
+---
+
 
 
 ---

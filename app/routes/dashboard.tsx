@@ -6,6 +6,8 @@ import { useState } from "react";
 import { matchCache } from "~/utils/match-cache.client";
 import { matchesCache } from "~/utils/matches-cache.client";
 import { dashboardCache } from "~/utils/dashboard-cache.client";
+import { useRevalidator } from "react-router";
+import { RefreshCw } from "lucide-react";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Dream5 | Dashboard" }];
@@ -198,16 +200,36 @@ export async function clientAction({ serverAction }: Route.ClientActionArgs) {
 export default function Dashboard({}: Route.ComponentProps) {
   const [clickCount, setClickCount] = useState(0);
   const showAddMatchDetails = clickCount > 5 || import.meta.env.DEV;
+  const revalidator = useRevalidator();
+
+  const handleRefresh = () => {
+    dashboardCache.invalidate();
+    revalidator.revalidate();
+  };
+
   return (
     <div>
       <div className="p-4">
         <div className="flex justify-between items-baseline mb-4">
-          <h1
-            className="text-2xl font-bold mb-4"
-            onClick={() => setClickCount(clickCount + 1)}
-          >
-            Dashboard
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1
+              className="text-2xl font-bold"
+              onClick={() => setClickCount(clickCount + 1)}
+            >
+              Dashboard
+            </h1>
+            <button
+              onClick={handleRefresh}
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              aria-label="Refresh dashboard"
+            >
+              <RefreshCw
+                className={`w-5 h-5 text-gray-600 ${
+                  revalidator.state === "loading" ? "animate-spin" : ""
+                }`}
+              />
+            </button>
+          </div>
           {showAddMatchDetails && <AddEditMatchDetails />}
         </div>
         <ScoreCard />
