@@ -3,7 +3,7 @@ import { prisma } from "~/utils/db.server";
 import { MatchResultCard } from "~/components/match/matchresultcard";
 import { Link } from "react-router";
 import { ArrowLeft } from "lucide-react";
-import { matchCache } from "~/utils/match-cache";
+import { matchCache } from "~/utils/match-cache.client";
 
 let isInitialRequest = true;
 
@@ -78,7 +78,7 @@ export async function clientLoader({
   return serverData;
 }
 
-clientLoader.hydrate = true;
+clientLoader.hydrate = true as const;
 
 export function HydrateFallback() {
   return (

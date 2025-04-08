@@ -3,7 +3,7 @@ import { prisma } from "~/utils/db.server";
 import { AddEditMatchDetails } from "~/components/common/AddEditMatchDetails";
 import { ScoreCard } from "~/components/overallscore/scorecard";
 import { useState } from "react";
-import { matchCache } from "~/utils/match-cache";
+import { matchCache } from "~/utils/match-cache.client";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Dream5 | Dashboard" }];
@@ -127,13 +127,18 @@ export async function action({ request }: Route.ActionArgs) {
 
   await prisma.$transaction(upserts);
 
-  // Invalidate the cache for this specific match
-  if (matchId) {
-    matchCache.invalidate(matchId);
-  }
-
   return {
     updateStatus: "Success",
+    updatedMatchId: matchId,
+  };
+}
+
+export async function clientAction({ serverAction }: Route.ClientActionArgs) {
+  const serverResponse = await serverAction();
+  matchCache.invalidate(serverResponse.updatedMatchId);
+  return {
+    updateStatus: "Success",
+    updatedRecord: serverResponse.updatedMatchId,
   };
 }
 
