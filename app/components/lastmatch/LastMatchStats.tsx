@@ -1,4 +1,4 @@
-import { useLoaderData } from "react-router";
+import { Link, useLoaderData } from "react-router";
 import { Trophy } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import type { loader as DashboardLoader } from "~/routes/dashboard";
@@ -28,8 +28,8 @@ export function LastMatchStats() {
     .slice(0, 3);
 
   return (
-    <Card className="mb-6 bg-white shadow-sm mt-4">
-      <CardHeader className="pb-2">
+    <Card className="mb-6 bg-white shadow-sm mt-4 gap-2">
+      <CardHeader>
         <CardTitle className="text-lg font-semibold text-center">
           Last Match Results
         </CardTitle>
@@ -37,9 +37,13 @@ export function LastMatchStats() {
       <CardContent>
         <div className="space-y-6">
           <div className="flex flex-col">
-            <p className="text-sm text-gray-500 text-center">
+            <Link
+              to={`/match/${lastMatch.matchNumber}`}
+              prefetch="viewport"
+              className="text-sm text-blue-600 hover:underline text-center  transition-colors"
+            >
               {matchDate.toLocaleDateString()}
-            </p>
+            </Link>
             <div className="mt-2 flex items-center justify-between">
               <div className="text-center flex-1">
                 <p className="font-medium">{lastMatch.homeTeam.name}</p>
