@@ -73,7 +73,7 @@ export async function loader({ params }: { params: { userId: string } }) {
     .map((score) => ({
       id: score.match.id,
       matchNumber: parseInt(score.match.matchNumber),
-      points: score.score,
+      points: score.score.toLocaleString("en-IN"),
     }))
     .sort((a, b) => a.matchNumber - b.matchNumber); // Sort in ascending order
 

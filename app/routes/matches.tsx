@@ -44,8 +44,8 @@ export async function loader({}: Route.LoaderArgs) {
       number: match.matchNumber,
       details,
       winner,
-      points: highestScore,
-      secondDiff,
+      points: highestScore.toLocaleString("en-IN"),
+      secondDiff: secondDiff.toLocaleString("en-IN"),
     };
   });
 

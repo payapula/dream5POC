@@ -70,7 +70,16 @@ export const columns: ColumnDef<UserStats>[] = [
     header: () => <HeaderCell>Total Score</HeaderCell>,
     cell: ({ row }) => {
       const totalScore = row.original.totalScore;
-      return <Cell>{totalScore}</Cell>;
+      const formattedScore = totalScore.toLocaleString("en-IN");
+      return <Cell>{formattedScore}</Cell>;
+    },
+  },
+  {
+    accessorKey: "oneUp",
+    header: () => <HeaderCell>One Up</HeaderCell>,
+    cell: ({ row }) => {
+      const oneUp = row.original.oneUp;
+      return <Cell className="text-center">{oneUp}</Cell>;
     },
   },
   {
@@ -87,14 +96,6 @@ export const columns: ColumnDef<UserStats>[] = [
     cell: ({ row }) => {
       const matchesLost = row.original.matchesLost;
       return <Cell className="text-center">{matchesLost}</Cell>;
-    },
-  },
-  {
-    accessorKey: "oneUp",
-    header: () => <HeaderCell>One Up</HeaderCell>,
-    cell: ({ row }) => {
-      const oneUp = row.original.oneUp;
-      return <Cell className="text-center">{oneUp}</Cell>;
     },
   },
 ];
