@@ -6,8 +6,8 @@ export type Match = {
   number: string;
   details: string;
   winner: string;
-  points: number;
-  secondDiff: number;
+  points: string;
+  secondDiff: string;
 };
 
 export const columns: ColumnDef<Match>[] = [

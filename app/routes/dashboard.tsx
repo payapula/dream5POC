@@ -8,7 +8,7 @@ import { matchesCache } from "~/utils/matches-cache.client";
 import { dashboardCache } from "~/utils/dashboard-cache.client";
 import { useRevalidator } from "react-router";
 import { RefreshCw } from "lucide-react";
-
+import { LastMatchStats } from "~/components/lastmatch/LastMatchStats";
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Dream5 | Dashboard" }];
 }
@@ -22,7 +22,13 @@ export async function loader({}: Route.LoaderArgs) {
   // Get all scores
   const allScores = await prisma.userScore.findMany({
     include: {
-      match: true,
+      match: {
+        include: {
+          homeTeam: true,
+          awayTeam: true,
+        },
+      },
+      user: true,
     },
   });
 
@@ -34,6 +40,40 @@ export async function loader({}: Route.LoaderArgs) {
     acc[score.matchId].push(score);
     return acc;
   }, {} as Record<string, typeof allScores>);
+
+  // Find the latest match from the scores
+  let lastMatch = null;
+  let lastMatchDate = new Date(0);
+
+  // Find the most recent match
+  Object.entries(scoresByMatch).forEach(([matchId, scores]) => {
+    const matchDate = new Date(scores[0].match.date);
+    if (matchDate > lastMatchDate) {
+      lastMatchDate = matchDate;
+
+      // Get unique match data
+      const matchData = scores[0].match;
+
+      // Calculate highest score for this match
+      const highestScore = Math.max(...scores.map((s) => s.score));
+
+      // Get users with the highest score
+      const winnersIds = scores
+        .filter((score) => Math.abs(score.score - highestScore) < 0.001)
+        .map((score) => score.userId);
+
+      lastMatch = {
+        id: matchId,
+        date: matchData.date,
+        matchNumber: matchData.matchNumber,
+        homeTeam: matchData.homeTeam,
+        awayTeam: matchData.awayTeam,
+        userScores: scores,
+        winnersIds,
+        highestScore,
+      };
+    }
+  });
 
   // Pre-calculate highest and lowest scores for each match
   const matchStats = Object.entries(scoresByMatch).reduce(
@@ -91,7 +131,27 @@ export async function loader({}: Route.LoaderArgs) {
       oneUp: index > 0 ? array[index - 1].totalScore - user.totalScore : 0,
     }));
 
-  return { users: rankedData, totalMatches: Object.keys(scoresByMatch).length };
+  return {
+    users: rankedData,
+    totalMatches: Object.keys(scoresByMatch).length,
+    lastMatch: lastMatch
+      ? lastMatch
+      : {
+          id: "",
+          date: "",
+          matchNumber: "",
+          homeTeam: {
+            id: "",
+            name: "",
+          },
+          awayTeam: {
+            id: "",
+            name: "",
+          },
+          userScores: [],
+          winnersIds: [],
+        },
+  };
 }
 
 const userKeyMapping: Record<string, string> = {
@@ -233,6 +293,7 @@ export default function Dashboard({}: Route.ComponentProps) {
           {showAddMatchDetails && <AddEditMatchDetails />}
         </div>
         <ScoreCard />
+        <LastMatchStats />
       </div>
     </div>
   );

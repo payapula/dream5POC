@@ -5,7 +5,7 @@ import { Link } from "react-router";
 export type UserMatch = {
   id: string;
   matchNumber: number;
-  points: number;
+  points: string;
 };
 
 export const columns: ColumnDef<UserMatch>[] = [
