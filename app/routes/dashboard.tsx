@@ -4,6 +4,7 @@ import { AddEditMatchDetails } from "~/components/common/AddEditMatchDetails";
 import { ScoreCard } from "~/components/overallscore/scorecard";
 import { useState } from "react";
 import { matchCache } from "~/utils/match-cache.client";
+import { matchesCache } from "~/utils/matches-cache.client";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Dream5 | Dashboard" }];
@@ -136,6 +137,7 @@ export async function action({ request }: Route.ActionArgs) {
 export async function clientAction({ serverAction }: Route.ClientActionArgs) {
   const serverResponse = await serverAction();
   matchCache.invalidate(serverResponse.updatedMatchId);
+  matchesCache.invalidateAll();
   return {
     updateStatus: "Success",
     updatedRecord: serverResponse.updatedMatchId,

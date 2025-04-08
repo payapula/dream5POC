@@ -1,6 +1,7 @@
 import type { Route } from "./+types/matches";
 import { prisma } from "~/utils/db.server";
 import { MatchesCard } from "~/components/matches/matchescard";
+import { matchesCache } from "~/utils/matches-cache.client";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Dream5 | Matches" }];
@@ -59,7 +60,6 @@ export async function loader({}: Route.LoaderArgs) {
 }
 
 let isInitialRequest = true;
-let cache = new Map();
 
 export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
   const cacheKey = `matches-${new Date().toISOString().split("T")[0]}`;
@@ -67,17 +67,17 @@ export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
   if (isInitialRequest) {
     isInitialRequest = false;
     const serverData = await serverLoader();
-    cache.set(cacheKey, serverData);
+    matchesCache.set(cacheKey, serverData);
     return serverData;
   }
 
-  const cachedData = cache.get(cacheKey);
+  const cachedData = matchesCache.get(cacheKey);
   if (cachedData) {
     return cachedData;
   }
 
   const serverData = await serverLoader();
-  cache.set(cacheKey, serverData);
+  matchesCache.set(cacheKey, serverData);
   return serverData;
 }
 
