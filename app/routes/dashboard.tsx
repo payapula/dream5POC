@@ -5,10 +5,13 @@ import { ScoreCard } from "~/components/overallscore/scorecard";
 import { useState } from "react";
 import { matchCache } from "~/utils/match-cache.client";
 import { matchesCache } from "~/utils/matches-cache.client";
+import { dashboardCache } from "~/utils/dashboard-cache.client";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Dream5 | Dashboard" }];
 }
+
+let isInitialRequest = true;
 
 export async function loader({}: Route.LoaderArgs) {
   // Get all users
@@ -134,10 +137,58 @@ export async function action({ request }: Route.ActionArgs) {
   };
 }
 
+export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
+  if (isInitialRequest) {
+    isInitialRequest = false;
+    const serverData = await serverLoader();
+    dashboardCache.set(serverData);
+    return serverData;
+  }
+
+  // Check if we have cached data
+  const cachedData = dashboardCache.get();
+  if (cachedData) {
+    return cachedData;
+  }
+
+  // If no cache or expired, fetch from server
+  const serverData = await serverLoader();
+  dashboardCache.set(serverData);
+  return serverData;
+}
+
+clientLoader.hydrate = true as const;
+
+export function HydrateFallback() {
+  return (
+    <div>
+      <div className="p-4">
+        <div className="flex justify-between items-baseline mb-4">
+          <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+        </div>
+        <div className="animate-pulse">
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="space-y-4">
+              <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+              <div className="space-y-3">
+                <div className="h-10 bg-gray-200 rounded"></div>
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-16 bg-gray-200 rounded"></div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export async function clientAction({ serverAction }: Route.ClientActionArgs) {
   const serverResponse = await serverAction();
   matchCache.invalidate(serverResponse.updatedMatchId);
   matchesCache.invalidateAll();
+  dashboardCache.invalidate();
   return {
     updateStatus: "Success",
     updatedRecord: serverResponse.updatedMatchId,
