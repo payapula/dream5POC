@@ -1034,7 +1034,198 @@ export function LastMatchStats() {
             </div>
           </div>
 
-          <div className="border-t pt
+          <div className="border-t pt-6"> {/* Increased pt from 4 to 6 */}
+            <p className="text-sm font-medium mb-8 text-center"> {/* Increased mb from 4 to 8 */}
+              Top Performers
+            </p>
+
+            {/* Trophy icon above the first place winner */}
+            <div className="absolute left-1/2 transform -translate-x-1/2 -mt-5 z-20">
+              <Trophy className="w-6 h-6 text-yellow-500 animate-pulse" />
+            </div>
+
+            {/* Podium Section */}
+            <div className="relative h-40 flex items-end justify-center mt-6"> {/* Increased height and added mt-6 */}
+              {/* Second Place - Left */}
+              {topPerformers.length > 1 && (
+                <div className="absolute left-2 bottom-0 w-1/3 flex flex-col items-center animate-fade-in">
+                  <div className="w-12 h-12 rounded-full bg-gray-200 border-2 border-gray-200 flex items-center justify-center overflow-hidden mb-2 relative"> {/* Increased mb */}
+                    <span className="text-xs font-bold">2</span>
+                    <div className="absolute inset-0 bg-silver opacity-30 animate-pulse"></div>
+                  </div>
+                  <p className="text-xs text-center font-medium truncate w-full">
+                    {/* @ts-expect-error */}
+                    {topPerformers[1]?.user.displayName}
+                  </p>
+                  <p className="text-xs font-semibold mb-1"> {/* Added mb-1 */}
+                    {/* @ts-expect-error */}
+                    {topPerformers[1]?.score.toLocaleString("en-IN")}
+                  </p>
+                  <div className="w-full bg-gray-200 h-16 rounded-t-lg"></div>
+                </div>
+              )}
+
+              {/* First Place - Center */}
+              {topPerformers.length > 0 && (
+                <div className="absolute left-1/2 transform -translate-x-1/2 bottom-0 w-1/3 flex flex-col items-center z-10 animate-bounce-in">
+                  <div className="w-14 h-14 rounded-full bg-yellow-100 border-2 border-yellow-300 flex items-center justify-center overflow-hidden mb-2 relative"> {/* Increased mb */}
+                    <span className="text-sm font-bold">1</span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-yellow-200 to-yellow-400 opacity-30 animate-shine"></div>
+                  </div>
+                  <p className="text-xs text-center font-medium truncate w-full">
+                    {/* @ts-expect-error */}
+                    {topPerformers[0]?.user.displayName}
+                  </p>
+                  <p className="text-xs font-semibold mb-1"> {/* Added mb-1 */}
+                    {/* @ts-expect-error */}
+                    {topPerformers[0]?.score.toLocaleString("en-IN")}
+                  </p>
+                  <div className="w-full bg-yellow-200 h-24 rounded-t-lg relative">
+                    <div className="absolute top-0 inset-x-0 h-1/3 bg-gradient-to-r from-yellow-100 to-yellow-300 opacity-50 animate-shimmer"></div>
+                  </div>
+                </div>
+              )}
+
+              {/* Third Place - Right */}
+              {topPerformers.length > 2 && (
+                <div className="absolute right-2 bottom-0 w-1/3 flex flex-col items-center animate-fade-in">
+                  <div className="w-10 h-10 rounded-full bg-orange-100 border-2 border-orange-200 flex items-center justify-center overflow-hidden mb-2 relative"> {/* Increased mb */}
+                    <span className="text-xs font-bold">3</span>
+                    <div className="absolute inset-0 bg-bronze opacity-30 animate-pulse"></div>
+                  </div>
+                  <p className="text-xs text-center font-medium truncate w-full">
+                    {/* @ts-expect-error */}
+                    {topPerformers[2]?.user.displayName}
+                  </p>
+                  <p className="text-xs font-semibold mb-1"> {/* Added mb-1 */}
+                    {/* @ts-expect-error */}
+                    {topPerformers[2]?.score.toLocaleString("en-IN")}
+                  </p>
+                  <div className="w-full bg-orange-100 h-12 rounded-t-lg"></div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+```
+
+The key changes I've made to improve the spacing:
+
+1. Increased the overall vertical spacing in the card by changing `space-y-4` to `space-y-6`
+
+2. Added more padding at the top of the section by changing `pt-4` to `pt-6`
+
+3. Increased the spacing between "Top Performers" text and the podium by changing `mb-4` to `mb-8`
+
+4. Increased the height of the podium container from `h-36` to `h-40` to give more space for the elements
+
+5. Added `mt-6` to the podium container to push it down further from the text
+
+6. Moved the trophy icon above the first place winner and slightly higher with `-mt-5` to create better visual separation
+
+7. Added margin bottom (`mb-2`) to the avatar circles to create more space between the circles and the text
+
+8. Added a small margin (`mb-1`) between the score text and the podium blocks
+
+These changes will create a more balanced layout with better spacing, similar to what's shown in your reference image, with the "Top Performers" text having adequate separation from the podium elements below.
+
+---
+
+_**User**_
+
+Because of the return type of `lastMatch` on loader, @LastMatchStats.tsx is showing errors `Property 'date' does not exist on type 'never'` on line number 22 and below. How do we fix this issue as per best practices of typescript and react-router/remix ? 
+
+---
+
+_**Assistant**_
+
+Looking at the loader function in your dashboard.tsx file, I notice that there's an issue with TypeScript typings for the `lastMatch` object. Let's fix this by properly typing the return value from the loader.
+
+Here's how to resolve the TypeScript errors:
+
+1. First, let's create a type definition for the lastMatch object in a common types file or directly in the dashboard.tsx file:
+
+```typescript:app/routes/+types/dashboard.ts
+// Add this to your existing types file
+
+// User score with user info
+export interface UserScoreWithUser {
+  id: string;
+  userId: string;
+  matchId: string;
+  score: number;
+  user: {
+    id: string;
+    name: string;
+    displayName: string;
+  }
+}
+
+// Team type
+export interface Team {
+  id: string;
+  name: string;
+}
+
+// Last match type
+export interface LastMatch {
+  id: string;
+  date: string | Date;
+  matchNumber: string;
+  homeTeam: Team;
+  awayTeam: Team;
+  userScores: UserScoreWithUser[];
+  winnersIds: string[];
+  highestScore: number;
+}
+
+// Loader data return type
+export interface DashboardLoaderData {
+  users: {
+    id: string;
+    name: string;
+    displayName: string;
+    totalScore: number;
+    matchesWon: number;
+    matchesLost: number;
+    ranking: number;
+    oneUp: number;
+  }[];
+  totalMatches: number;
+  lastMatch: LastMatch | null;
+}
+```
+
+2. Next, update the loader function in dashboard.tsx to use this type:
+
+```typescript:app/routes/dashboard.tsx
+import type { Route, DashboardLoaderData, LastMatch } from "./+types/dashboard";
+
+// ... rest of imports
+
+export async function loader({}: Route.LoaderArgs): Promise<DashboardLoaderData> {
+  // ... existing code
+
+  // Update the return statement to explicitly type the return value
+  return {
+    users: rankedData,
+    totalMatches: Object.keys(scoresByMatch).length,
+    lastMatch
+  };
+}
+```
+
+3. Finally, update the LastMatchStats component to handle the proper typing:
+
+```typescript:app/components/lastmatch/LastMatchStats.tsx
+import { Link, useLoaderData } from "react-router";
+import { Trophy } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import type { DashboardLoaderData
 
 ---
 

@@ -1,4 +1,5 @@
 import type { Route } from "./+types/dashboard";
+import type { DashboardLoaderData } from "./types/dashboard";
 import { prisma } from "~/utils/db.server";
 import { AddEditMatchDetails } from "~/components/common/AddEditMatchDetails";
 import { ScoreCard } from "~/components/overallscore/scorecard";
@@ -15,7 +16,7 @@ export function meta({}: Route.MetaArgs) {
 
 let isInitialRequest = true;
 
-export async function loader({}: Route.LoaderArgs) {
+export async function loader({}: Route.LoaderArgs): Promise<DashboardLoaderData> {
   // Get all users
   const users = await prisma.user.findMany();
 
@@ -134,23 +135,7 @@ export async function loader({}: Route.LoaderArgs) {
   return {
     users: rankedData,
     totalMatches: Object.keys(scoresByMatch).length,
-    lastMatch: lastMatch
-      ? lastMatch
-      : {
-          id: "",
-          date: "",
-          matchNumber: "",
-          homeTeam: {
-            id: "",
-            name: "",
-          },
-          awayTeam: {
-            id: "",
-            name: "",
-          },
-          userScores: [],
-          winnersIds: [],
-        },
+    lastMatch,
   };
 }
 
