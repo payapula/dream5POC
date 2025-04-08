@@ -87,7 +87,6 @@ export function LastMatchStats() {
               {topPerformers.length > 0 && (
                 <div className="absolute left-1/2 transform -translate-x-1/2 bottom-0 w-1/3 flex flex-col items-center z-10 animate-bounce-in">
                   <div className="w-14 h-14 rounded-full bg-yellow-100 border-2 border-yellow-300 flex items-center justify-center overflow-hidden mb-2 relative">
-                    <span className="text-xs font-bold">1</span>
                     <div className="absolute inset-0 bg-gradient-to-r from-yellow-200 to-yellow-400 opacity-30 animate-shine"></div>
                   </div>
                   <p className="text-xs text-center font-medium truncate w-full">
