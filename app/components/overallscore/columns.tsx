@@ -38,7 +38,11 @@ export const columns: ColumnDef<UserStats>[] = [
       const userId = row.original.id;
 
       return (
-        <Link to={`/user/${userId}`} className="text-blue-600 hover:underline">
+        <Link
+          to={`/user/${userId}`}
+          className="text-blue-600 hover:underline"
+          prefetch="viewport"
+        >
           {displayName}
         </Link>
       );
