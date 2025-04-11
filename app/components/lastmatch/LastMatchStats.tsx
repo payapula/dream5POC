@@ -27,7 +27,7 @@ export function LastMatchStats() {
     .slice(0, 3);
 
   return (
-    <Card className="mb-6 bg-white shadow-sm mt-4 gap-2">
+    <Card className="mb-6 bg-white shadow-sm mt-4 gap-2 py-6">
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-center">
           Last Match Results
