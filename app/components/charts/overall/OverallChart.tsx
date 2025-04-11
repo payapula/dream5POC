@@ -55,11 +55,16 @@ export function OverallChart() {
               tickLine={false}
               tickMargin={10}
               axisLine={false}
+              padding={{
+                top: 8,
+                bottom: 8,
+              }}
             />
             <Bar
               dataKey="score"
               fill="var(--color-desktop)"
               radius={4}
+              barSize={25}
               label={{
                 position: "center",
                 fill: "white",
