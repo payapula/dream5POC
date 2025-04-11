@@ -9,7 +9,8 @@ Dream5 is a mobile-only web application that allows users to bet on the teams to
 - React Router v7
 - Tailwind CSS
 - Shadcn UI
-- Vite
+- Recharts for the beautiful charts
+- Vite for the build
 - Prisma as the ORM
 - Supabase as the database
 - Vercel for hosting and deployment

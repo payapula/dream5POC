@@ -1,16 +1,16 @@
 import { Link, useLoaderData } from "react-router";
 import { Trophy } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import type { loader as DashboardLoader } from "~/routes/dashboard";
+import type { DashboardLoaderData } from "~/routes/types/dashboard";
 
 export function LastMatchStats() {
-  const { lastMatch } = useLoaderData<typeof DashboardLoader>();
+  const { lastMatch } = useLoaderData<DashboardLoaderData>();
 
   if (!lastMatch) {
     return (
       <Card className="mb-6 bg-white shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg font-semibold">Latest Match</CardTitle>
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold">Last Match</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-gray-500">No matches found yet.</p>
@@ -23,12 +23,11 @@ export function LastMatchStats() {
 
   // Sort and get top 3 performers
   const topPerformers = [...lastMatch.userScores]
-    // @ts-expect-error
     .sort((a, b) => b.score - a.score)
     .slice(0, 3);
 
   return (
-    <Card className="mb-6 bg-white shadow-sm mt-4 gap-2">
+    <Card className="mb-6 bg-white shadow-sm mt-4 gap-2 py-6">
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-center">
           Last Match Results
@@ -40,7 +39,7 @@ export function LastMatchStats() {
             <Link
               to={`/match/${lastMatch.matchNumber}`}
               prefetch="viewport"
-              className="text-sm text-blue-600 hover:underline text-center  transition-colors"
+              className="text-sm text-blue-600 hover:underline text-center transition-colors"
             >
               {matchDate.toLocaleDateString()}
             </Link>
@@ -75,11 +74,9 @@ export function LastMatchStats() {
                     <div className="absolute inset-0 bg-silver opacity-30 animate-pulse"></div>
                   </div>
                   <p className="text-xs text-center font-medium truncate w-full">
-                    {/* @ts-expect-error */}
                     {topPerformers[1]?.user.displayName}
                   </p>
                   <p className="text-xs font-semibold mb-1">
-                    {/* @ts-expect-error */}
                     {topPerformers[1]?.score.toLocaleString("en-IN")}
                   </p>
                   <div className="w-full bg-gray-200 h-16 rounded-t-lg"></div>
@@ -93,11 +90,9 @@ export function LastMatchStats() {
                     <div className="absolute inset-0 bg-gradient-to-r from-yellow-200 to-yellow-400 opacity-30 animate-shine"></div>
                   </div>
                   <p className="text-xs text-center font-medium truncate w-full">
-                    {/* @ts-expect-error */}
                     {topPerformers[0]?.user.displayName}
                   </p>
                   <p className="text-xs font-semibold mb-1">
-                    {/* @ts-expect-error */}
                     {topPerformers[0]?.score.toLocaleString("en-IN")}
                   </p>
                   <div className="w-full bg-yellow-200 h-24 rounded-t-lg relative">
@@ -114,11 +109,9 @@ export function LastMatchStats() {
                     <div className="absolute inset-0 bg-bronze opacity-30 animate-pulse"></div>
                   </div>
                   <p className="text-xs text-center font-medium truncate w-full">
-                    {/* @ts-expect-error */}
                     {topPerformers[2]?.user.displayName}
                   </p>
                   <p className="text-xs font-semibold mb-1">
-                    {/* @ts-expect-error */}
                     {topPerformers[2]?.score.toLocaleString("en-IN")}
                   </p>
                   <div className="w-full bg-orange-100 h-12 rounded-t-lg"></div>
