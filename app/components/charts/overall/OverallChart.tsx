@@ -27,7 +27,7 @@ export function OverallChart() {
   const { users } = useLoaderData<DashboardLoaderData>();
 
   const chartData = users.map((user) => ({
-    user: user.name,
+    user: user.displayName,
     score: user.totalScore,
   }));
 
