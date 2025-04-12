@@ -2,14 +2,14 @@ import { Link, NavLink, Outlet } from "react-router";
 import { prisma } from "~/utils/db.server";
 import { matchesCache } from "~/utils/matches-cache.client";
 import type { Route } from "./+types/index";
-
+import type { MatchesLoaderData } from "../types/matches";
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Dream5 | Matches" }];
 }
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export async function loader({}: Route.LoaderArgs) {
+export async function loader({}: Route.LoaderArgs): Promise<MatchesLoaderData> {
   // Get all matches with related user scores
   const matches = await prisma.match.findMany({
     include: {
@@ -48,6 +48,7 @@ export async function loader({}: Route.LoaderArgs) {
       winner,
       points: highestScore.toLocaleString("en-IN"),
       secondDiff: secondDiff.toLocaleString("en-IN"),
+      userScores: match.userScores,
     };
   });
 

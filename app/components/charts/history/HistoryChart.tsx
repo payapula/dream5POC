@@ -1,4 +1,4 @@
-import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import {
   Card,
   CardContent,
@@ -16,6 +16,8 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
+import { useRouteLoaderData } from "react-router";
+import type { MatchesLoaderData } from "~/routes/types/matches";
 
 const chartData = [
   { match: 1, user1: 87, user2: 45, user3: 73, user4: 28, user5: 91 },
@@ -28,23 +30,23 @@ const chartData = [
 
 const chartConfig = {
   user1: {
-    label: "User 1",
+    label: "Assassino",
     color: "#2563eb",
   },
   user2: {
-    label: "User 2",
+    label: "Naveen",
     color: "#60a5fa",
   },
   user3: {
-    label: "User 3",
+    label: "HP",
     color: "#93c5fd",
   },
   user4: {
-    label: "User 4",
+    label: "BK",
     color: "#3b82f6",
   },
   user5: {
-    label: "User 5",
+    label: "Bala",
     color: "#1d4ed8",
   },
 } satisfies ChartConfig;
@@ -107,10 +109,47 @@ function UserSelector({
 }
 
 export function HistoryChart() {
+  const rootData = useRouteLoaderData<MatchesLoaderData>(
+    "routes/matches/matchesRoot"
+  );
+
+  if (!rootData?.matches) {
+    return <div>No matches found</div>;
+  }
+
+  const { matches } = rootData;
+
+  return <Chart matches={matches} />;
+}
+
+export function Chart({ matches }: { matches: MatchesLoaderData["matches"] }) {
+  const filteredMatches = matches
+    .filter((match) => match.winner.toLowerCase() !== "no winner")
+    .slice(-5)
+    .map((match) => {
+      return match.userScores.map((userScore) => {
+        return {
+          match: match.number,
+          user: userScore.user.displayName,
+          userId: userScore.userId,
+          score: userScore.score,
+        };
+      });
+    });
+  const convertedChartData = filteredMatches.map((match) => {
+    let matchData: { [key: string]: any } = {};
+    for (const user of match) {
+      matchData["match"] = user.match;
+      matchData[`user${user.userId}`] = user.score;
+    }
+    return matchData;
+  });
+
+  console.log("convertedChartData", convertedChartData);
   const userKeys = Object.keys(chartConfig);
   const [selectedUsers, setSelectedUsers] = useState<string[]>(userKeys);
 
-  const filteredData = chartData.map((dataPoint) => {
+  const filteredData = convertedChartData.map((dataPoint) => {
     const filteredPoint = { match: dataPoint.match };
     selectedUsers.forEach((user) => {
       //@ts-ignore
