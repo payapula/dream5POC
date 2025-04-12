@@ -8,18 +8,20 @@ import {
 import { Button } from "@/components/ui/button";
 import { AddMatchDetailsForm } from "./AddMatchForm";
 import { useState, useEffect } from "react";
-import { useActionData } from "react-router";
+import { useFetcher } from "react-router";
 import type { action } from "~/routes/dashboard";
-
+import { fetcherKeys } from "~/utils/fetcherKeys";
 export function AddEditMatchDetails() {
   const [open, setOpen] = useState(false);
-  const actionData = useActionData<typeof action>();
+  const { data } = useFetcher<typeof action>({
+    key: fetcherKeys.updateMatch,
+  });
 
   useEffect(() => {
-    if (actionData?.updateStatus === "Success") {
+    if (data?.updateStatus === "Success") {
       setOpen(false);
     }
-  }, [actionData]);
+  }, [data]);
 
   return (
     <Drawer open={open} onOpenChange={setOpen}>

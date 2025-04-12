@@ -2,6 +2,10 @@ import { type RouteConfig, index, route } from "@react-router/dev/routes";
 
 export default [
   index("routes/dashboard.tsx"),
+
+  /**
+   * Matches
+   */
   route("matches", "routes/matches.tsx"),
   route("match/:matchId", "routes/match.tsx"),
 

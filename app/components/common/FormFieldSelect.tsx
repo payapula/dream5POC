@@ -16,7 +16,7 @@ import {
 import { useFetcher } from "react-router";
 import { useEffect } from "react";
 import type { loader as MatchListLoader } from "~/routes/match-list";
-
+import { fetcherKeys } from "~/utils/fetcherKeys";
 export function FormFieldSelect({
   form,
   name,
@@ -25,7 +25,7 @@ export function FormFieldSelect({
   name: string;
 }) {
   const fetcher = useFetcher<typeof MatchListLoader>({
-    key: "match-list",
+    key: fetcherKeys.matchList,
   });
 
   useEffect(() => {

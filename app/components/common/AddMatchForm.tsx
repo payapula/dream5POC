@@ -13,11 +13,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { FormFieldSelect } from "./FormFieldSelect";
-import { useFetcher, useSubmit, useLoaderData } from "react-router";
+import { useFetcher, useLoaderData } from "react-router";
 import type { loader as MatchListLoader } from "~/routes/match-list";
 import type { loader as UserListLoader } from "~/routes/dashboard";
 import { useEffect, useState } from "react";
-
+import { fetcherKeys } from "~/utils/fetcherKeys";
 const formSchema = z.object({
   matchId: z.string(),
   User1: z.string().min(1).max(7),
@@ -31,7 +31,9 @@ type AddEditFormType = z.infer<typeof formSchema>;
 
 export function AddMatchDetailsForm() {
   const [loading, setLoading] = useState(false);
-  const submit = useSubmit();
+  let fetcher = useFetcher({
+    key: fetcherKeys.updateMatch,
+  });
   const users = useLoaderData<typeof UserListLoader>();
   const form = useForm<AddEditFormType>({
     resolver: zodResolver(formSchema),
@@ -48,13 +50,7 @@ export function AddMatchDetailsForm() {
   const matchId = form.watch("matchId");
 
   function onSubmit(values: AddEditFormType) {
-    const formData = new FormData();
-
-    Object.entries(values).forEach(([key, value]) => {
-      formData.append(key, value);
-    });
-
-    submit(formData, { method: "post" });
+    fetcher.submit(values, { method: "post" });
   }
 
   const userList = users?.users;
@@ -94,6 +90,8 @@ export function AddMatchDetailsForm() {
     fetchUserScoresForMatch();
   }, [matchId]);
 
+  const isSubmitting = fetcher.state === "submitting";
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -117,8 +115,8 @@ export function AddMatchDetailsForm() {
             )}
           />
         ))}
-        <Button type="submit" className="w-full mt-4">
-          Submit
+        <Button type="submit" className="w-full mt-4" disabled={isSubmitting}>
+          {isSubmitting ? "Submitting..." : "Submit"}
         </Button>
       </form>
     </Form>
@@ -128,7 +126,7 @@ export function AddMatchDetailsForm() {
 function SelectedMatchDetails() {
   const matchId = useWatch<AddEditFormType>({ name: "matchId" });
   const data = useFetcher<typeof MatchListLoader>({
-    key: "match-list",
+    key: fetcherKeys.matchList,
   });
 
   const match = data?.data?.matches.find((match) => match.id === matchId);
