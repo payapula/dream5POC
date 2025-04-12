@@ -89,6 +89,12 @@ function Header() {
           Matches
         </Link>
         <Link
+          to="/matches/chart"
+          className="px-4 py-2 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary/80 active:bg-primary/90 transition-colors"
+        >
+          Charts
+        </Link>
+        <Link
           to="/users"
           className="px-4 py-2 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary/80 active:bg-primary/90 transition-colors"
         >

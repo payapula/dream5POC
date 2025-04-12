@@ -17,10 +17,6 @@ const chartConfig = {
     label: "Desktop",
     color: "#2563eb",
   },
-  mobile: {
-    label: "Mobile",
-    color: "#60a5fa",
-  },
 } satisfies ChartConfig;
 
 export function OverallChart() {

@@ -1,10 +1,18 @@
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
-import type { loader as MatchesLoader } from "~/routes/matches";
-import { useLoaderData } from "react-router";
+import type { loader as MatchesLoader } from "~/routes/matches/matchesRoot";
+import { useRouteLoaderData } from "react-router";
 
 export function MatchesCard() {
-  const { matches } = useLoaderData<typeof MatchesLoader>();
+  const rootData = useRouteLoaderData<typeof MatchesLoader>(
+    "routes/matches/matchesRoot"
+  );
+
+  if (!rootData) {
+    return <div>No matches found</div>;
+  }
+
+  const { matches } = rootData;
 
   return (
     <div className="container mx-auto">
