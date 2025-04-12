@@ -31,23 +31,23 @@ const chartData = [
 const chartConfig = {
   user1: {
     label: "Assassino",
-    color: "#2563eb",
+    color: "var(--chart-1)",
   },
   user2: {
     label: "Naveen",
-    color: "#60a5fa",
+    color: "var(--chart-2)",
   },
   user3: {
     label: "HP",
-    color: "#93c5fd",
+    color: "var(--chart-3)",
   },
   user4: {
     label: "BK",
-    color: "#3b82f6",
+    color: "var(--chart-4)",
   },
   user5: {
     label: "Bala",
-    color: "#1d4ed8",
+    color: "var(--chart-5)",
   },
 } satisfies ChartConfig;
 
@@ -145,7 +145,6 @@ export function Chart({ matches }: { matches: MatchesLoaderData["matches"] }) {
     return matchData;
   });
 
-  console.log("convertedChartData", convertedChartData);
   const userKeys = Object.keys(chartConfig);
   const [selectedUsers, setSelectedUsers] = useState<string[]>(userKeys);
 
@@ -191,7 +190,7 @@ export function Chart({ matches }: { matches: MatchesLoaderData["matches"] }) {
               <Line
                 dataKey="user1"
                 type="monotone"
-                stroke="#2563eb"
+                stroke="var(--chart-1)"
                 strokeWidth={2}
                 dot={true}
               />
@@ -200,7 +199,7 @@ export function Chart({ matches }: { matches: MatchesLoaderData["matches"] }) {
               <Line
                 dataKey="user2"
                 type="monotone"
-                stroke="#60a5fa"
+                stroke="var(--chart-2)"
                 strokeWidth={2}
                 dot={true}
               />
@@ -209,7 +208,7 @@ export function Chart({ matches }: { matches: MatchesLoaderData["matches"] }) {
               <Line
                 dataKey="user3"
                 type="monotone"
-                stroke="#93c5fd"
+                stroke="var(--chart-3)"
                 strokeWidth={2}
                 dot={true}
               />
@@ -218,7 +217,7 @@ export function Chart({ matches }: { matches: MatchesLoaderData["matches"] }) {
               <Line
                 dataKey="user4"
                 type="monotone"
-                stroke="#3b82f6"
+                stroke="var(--chart-4)"
                 strokeWidth={2}
                 dot={true}
               />
@@ -227,7 +226,7 @@ export function Chart({ matches }: { matches: MatchesLoaderData["matches"] }) {
               <Line
                 dataKey="user5"
                 type="monotone"
-                stroke="#1d4ed8"
+                stroke="var(--chart-5)"
                 strokeWidth={2}
                 dot={true}
               />

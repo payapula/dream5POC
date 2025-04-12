@@ -249,6 +249,97 @@ export function HistoryChart() {
 
 ---
 
+_**User**_
+
+Let's update the color point for each user in both chartConfig and stroke to have contrast colors to make the chart look good. 
+
+---
+
+_**Assistant**_
+
+Read file: undefined
+
+---
+
+_****_
+
+```app/components/charts/history/HistoryChart.tsx
+// ... existing code ...
+
+const chartConfig = {
+  user1: {
+    label: "Assassino",
+    color: "var(--chart-1)",
+  },
+  user2: {
+    label: "Naveen",
+    color: "var(--chart-2)",
+  },
+  user3: {
+    label: "HP",
+    color: "var(--chart-3)",
+  },
+  user4: {
+    label: "BK",
+    color: "var(--chart-4)",
+  },
+  user5: {
+    label: "Bala",
+    color: "var(--chart-5)",
+  },
+} satisfies ChartConfig;
+
+// ... existing code ...
+
+            {selectedUsers.includes("user1") && (
+              <Line
+                dataKey="user1"
+                type="monotone"
+                stroke="var(--chart-1)"
+                strokeWidth={2}
+                dot={true}
+              />
+            )}
+            {selectedUsers.includes("user2") && (
+              <Line
+                dataKey="user2"
+                type="monotone"
+                stroke="var(--chart-2)"
+                strokeWidth={2}
+                dot={true}
+              />
+            )}
+            {selectedUsers.includes("user3") && (
+              <Line
+                dataKey="user3"
+                type="monotone"
+                stroke="var(--chart-3)"
+                strokeWidth={2}
+                dot={true}
+              />
+            )}
+            {selectedUsers.includes("user4") && (
+              <Line
+                dataKey="user4"
+                type="monotone"
+                stroke="var(--chart-4)"
+                strokeWidth={2}
+                dot={true}
+              />
+            )}
+            {selectedUsers.includes("user5") && (
+              <Line
+                dataKey="user5"
+                type="monotone"
+                stroke="var(--chart-5)"
+                strokeWidth={2}
+                dot={true}
+              />
+            )}
+```
+
+---
+
 
 
 ---
