@@ -1,11 +1,13 @@
-import type { Route } from "./+types/matches";
+import { Link, NavLink, Outlet } from "react-router";
 import { prisma } from "~/utils/db.server";
-import { MatchesCard } from "~/components/matches/matchescard";
 import { matchesCache } from "~/utils/matches-cache.client";
+import type { Route } from "./+types/index";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Dream5 | Matches" }];
 }
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export async function loader({}: Route.LoaderArgs) {
   // Get all matches with related user scores
@@ -56,6 +58,8 @@ export async function loader({}: Route.LoaderArgs) {
     return numA - numB;
   });
 
+  //   await sleep(2000);
+
   return { matches: matchesWithStats };
 }
 
@@ -85,8 +89,8 @@ clientLoader.hydrate = true;
 
 export function HydrateFallback() {
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Matches</h1>
+    <div className="py-4">
+      <h1 className="text-2xl font-bold mb-4 text-center">Matches</h1>
       <div className="animate-pulse">
         <div className="h-24 bg-gray-200 rounded mb-4"></div>
       </div>
@@ -94,11 +98,47 @@ export function HydrateFallback() {
   );
 }
 
-export default function Matches() {
+export default function MatchesRoot() {
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Matches</h1>
-      <MatchesCard />
+    <div className="py-4">
+      <h1 className="text-2xl font-bold mb-4 text-center">Matches</h1>
+      <div className="flex gap-4 mb-3 justify-center">
+        <NavLink
+          to="/matches"
+          className={({ isActive, isPending, isTransitioning }) =>
+            [
+              "px-3 py-2 rounded-lg bg-white shadow-md hover:shadow-lg transition-shadow border text-sm font-medium flex items-center justify-center min-w-[120px]",
+              isActive
+                ? "border-primary text-primary"
+                : "border-gray-100 text-gray-800",
+              isPending || isTransitioning ? "animate-pulse" : "",
+            ]
+              .filter(Boolean)
+              .join(" ")
+          }
+          end
+        >
+          Matches
+        </NavLink>
+        <NavLink
+          to="/matches/chart"
+          className={({ isActive, isPending, isTransitioning }) =>
+            [
+              "px-3 py-2 rounded-lg bg-white shadow-md hover:shadow-lg transition-shadow border text-sm font-medium flex items-center justify-center min-w-[120px]",
+              isActive
+                ? "border-primary text-primary"
+                : "border-gray-100 text-gray-800",
+              isPending || isTransitioning ? "animate-pulse" : "",
+            ]
+              .filter(Boolean)
+              .join(" ")
+          }
+          end
+        >
+          Charts
+        </NavLink>
+      </div>
+      <Outlet />
     </div>
   );
 }

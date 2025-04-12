@@ -1,4 +1,9 @@
-import { type RouteConfig, index, route } from "@react-router/dev/routes";
+import {
+  type RouteConfig,
+  index,
+  route,
+  prefix,
+} from "@react-router/dev/routes";
 
 export default [
   index("routes/dashboard.tsx"),
@@ -6,7 +11,10 @@ export default [
   /**
    * Matches
    */
-  route("matches", "routes/matches.tsx"),
+  route("matches", "routes/matches/matchesRoot.tsx", [
+    index("routes/matches/index.tsx"),
+    route("chart", "routes/matches/chart.tsx"),
+  ]),
   route("match/:matchId", "routes/match.tsx"),
 
   /**
