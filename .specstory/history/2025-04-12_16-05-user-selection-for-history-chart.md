@@ -1,3 +1,75 @@
+## SpecStory
+
+## User Selection for History Chart (12/04/2025, 16:05:02)
+
+_**User**_
+
+In history chart, currently we are displaying all 5 user data in chart. 
+
+Let's add ability for users to select number users data to be plotted in the chart. 
+
+Each user can be listed as a label with checkbox next to them. And we would need to have one more option "All". By default "All" should be selected. 
+
+When user updates the number users from the checkbox input, our chart should refresh and show only "checked" user's data. 
+
+Manage the checkbox handling with Select All functionalities similar to best user experience patterns. Also separate the components as needed to not crowd all data in single component.
+
+Give me a overall high plan of how we are going approach this first, and then lets do the actual edits
+
+---
+
+_**Assistant**_
+
+
+
+---
+
+_****_
+
+# Plan for User Selection in History Chart
+
+1. **Component Structure**
+   - Create a `UserSelector` component with checkboxes for each user and an "All" option
+   - Keep chart rendering in `HistoryChart` 
+   - Pass selected users as props between components
+
+2. **State Management**
+   - Add state to track selected users using React's useState
+   - Default to "All" selected (all users visible)
+
+3. **Filter Implementation**
+   - Filter chart data based on selected users
+   - Create derived data for the chart that only includes selected users
+   - Dynamically render only Line components for selected users
+
+4. **UX for Selection**
+   - "All" option toggles all checkboxes
+   - Individual selections update the "All" checkbox state
+   - When all users selected manually, "All" becomes checked
+
+5. **Styling**
+   - Use ShadcnUI components for checkboxes
+   - Mobile-friendly layout for filters
+
+Let me know if you'd like to proceed with the implementation.
+
+---
+
+_**User**_
+
+Yes, let's proceed with implementation.
+
+---
+
+_**Assistant**_
+
+
+
+---
+
+_****_
+
+```tsx:app/components/charts/history/HistoryChart.tsx
 import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
 import {
   Card,
@@ -17,85 +89,58 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 
-const chartData = [
-  { match: 1, user1: 87, user2: 45, user3: 73, user4: 28, user5: 91 },
-  { match: 2, user1: 32, user2: 91, user3: 45, user4: 67, user5: 12 },
-  { match: 3, user1: 76, user2: 64, user3: 89, user4: 34, user5: 56 },
-  { match: 4, user1: 23, user2: 55, user3: 17, user4: 95, user5: 83 },
-  { match: 5, user1: 95, user2: 42, user3: 61, user4: 39, user5: 44 },
-  { match: 6, user1: 61, user2: 83, user3: 29, user4: 72, user5: 65 },
-];
-
-const chartConfig = {
-  user1: {
-    label: "User 1",
-    color: "#2563eb",
-  },
-  user2: {
-    label: "User 2",
-    color: "#60a5fa",
-  },
-  user3: {
-    label: "User 3",
-    color: "#93c5fd",
-  },
-  user4: {
-    label: "User 4",
-    color: "#3b82f6",
-  },
-  user5: {
-    label: "User 5",
-    color: "#1d4ed8",
-  },
-} satisfies ChartConfig;
+// ... existing code ...
 
 // Create a UserSelector component
-function UserSelector({
-  config,
-  selectedUsers,
-  onChange,
-}: {
-  config: ChartConfig;
-  selectedUsers: string[];
+function UserSelector({ 
+  config, 
+  selectedUsers, 
+  onChange 
+}: { 
+  config: ChartConfig; 
+  selectedUsers: string[]; 
   onChange: (selected: string[]) => void;
 }) {
   const userKeys = Object.keys(config);
   const allSelected = selectedUsers.length === userKeys.length;
-
+  
   const handleSelectAll = () => {
     onChange(allSelected ? [] : [...userKeys]);
   };
 
   const handleUserToggle = (userId: string) => {
     if (selectedUsers.includes(userId)) {
-      onChange(selectedUsers.filter((id) => id !== userId));
+      onChange(selectedUsers.filter(id => id !== userId));
     } else {
       onChange([...selectedUsers, userId]);
     }
   };
 
   return (
-    <div className="mb-4 mt-4">
+    <div className="mb-4">
       <div className="flex items-center space-x-2 mb-2">
-        <Checkbox
-          id="select-all"
-          checked={allSelected}
-          onCheckedChange={handleSelectAll}
+        <Checkbox 
+          id="select-all" 
+          checked={allSelected} 
+          onCheckedChange={handleSelectAll} 
         />
         <Label htmlFor="select-all">All Users</Label>
       </div>
       <div className="grid grid-cols-3 gap-2">
-        {userKeys.map((userId) => (
+        {userKeys.map(userId => (
           <div key={userId} className="flex items-center space-x-2">
-            <Checkbox
-              id={userId}
+            <Checkbox 
+              id={userId} 
               checked={selectedUsers.includes(userId)}
               onCheckedChange={() => handleUserToggle(userId)}
             />
-            <Label htmlFor={userId} className="flex items-center">
-              <span
-                className="w-3 h-3 rounded-full mr-1"
-                style={{ backgroundColor: config[userId].color }}
+            <Label 
+              htmlFor={userId} 
+              className="flex items-center"
+            >
+              <span 
+                className="w-3 h-3 rounded-full mr-1" 
+                style={{ backgroundColor: config[userId].color }} 
               />
               {config[userId].label}
             </Label>
@@ -110,10 +155,10 @@ export function HistoryChart() {
   const userKeys = Object.keys(chartConfig);
   const [selectedUsers, setSelectedUsers] = useState<string[]>(userKeys);
 
-  const filteredData = chartData.map((dataPoint) => {
+  // Filter lines to only show selected users
+  const filteredData = chartData.map(dataPoint => {
     const filteredPoint = { match: dataPoint.match };
-    selectedUsers.forEach((user) => {
-      //@ts-ignore
+    selectedUsers.forEach(user => {
       filteredPoint[user] = dataPoint[user];
     });
     return filteredPoint;
@@ -126,10 +171,10 @@ export function HistoryChart() {
         <CardDescription>March 2025 - April 2025</CardDescription>
       </CardHeader>
       <CardContent>
-        <UserSelector
-          config={chartConfig}
-          selectedUsers={selectedUsers}
-          onChange={setSelectedUsers}
+        <UserSelector 
+          config={chartConfig} 
+          selectedUsers={selectedUsers} 
+          onChange={setSelectedUsers} 
         />
         <ChartContainer config={chartConfig}>
           <LineChart
@@ -148,6 +193,7 @@ export function HistoryChart() {
               tickMargin={8}
             />
             <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+            {/* Only render lines for selected users */}
             {selectedUsers.includes("user1") && (
               <Line
                 dataKey="user1"
@@ -199,3 +245,11 @@ export function HistoryChart() {
     </Card>
   );
 }
+```
+
+---
+
+
+
+---
+
