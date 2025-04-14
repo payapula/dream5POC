@@ -152,10 +152,13 @@ export async function action({ request }: Route.ActionArgs) {
   console.log("action received");
   try {
     let formData = await request.formData();
+    console.log("form data processed");
     const matchId = formData.get("matchId") as string;
+    console.log("match id processed");
     let upserts = [];
 
     for (const [key, value] of formData) {
+      console.log("upsert for ", key, value);
       if (key in userKeyMapping && key !== "matchId") {
         const userId = userKeyMapping[key];
         upserts.push(
@@ -177,9 +180,14 @@ export async function action({ request }: Route.ActionArgs) {
           })
         );
       }
+      console.log("upsert for ", key, value, "completed");
     }
 
+    console.log("all upserts completed");
+
     await prisma.$transaction(upserts);
+
+    console.log("transaction completed");
 
     console.log("action completed");
 
