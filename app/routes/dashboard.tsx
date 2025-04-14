@@ -149,40 +149,49 @@ const userKeyMapping: Record<string, string> = {
 };
 
 export async function action({ request }: Route.ActionArgs) {
-  let formData = await request.formData();
-  let upserts = [];
-  const matchId = formData.get("matchId") as string;
+  console.log("action received");
+  try {
+    let formData = await request.formData();
+    const matchId = formData.get("matchId") as string;
+    let upserts = [];
 
-  for (const [key, value] of formData) {
-    if (key in userKeyMapping && key !== "matchId") {
-      const userId = userKeyMapping[key];
-      upserts.push(
-        prisma.userScore.upsert({
-          where: {
-            userId_matchId: {
+    for (const [key, value] of formData) {
+      if (key in userKeyMapping && key !== "matchId") {
+        const userId = userKeyMapping[key];
+        upserts.push(
+          prisma.userScore.upsert({
+            where: {
+              userId_matchId: {
+                userId,
+                matchId,
+              },
+            },
+            update: {
+              score: Number(value),
+            },
+            create: {
               userId,
               matchId,
+              score: Number(value),
             },
-          },
-          update: {
-            score: Number(value),
-          },
-          create: {
-            userId,
-            matchId,
-            score: Number(value),
-          },
-        })
-      );
+          })
+        );
+      }
     }
+
+    await prisma.$transaction(upserts);
+
+    console.log("action completed");
+
+    return {
+      updateStatus: "Success",
+      updatedMatchId: matchId,
+    };
+  } catch (error) {
+    console.log("Error in dashboard action:", error);
+    console.error("Error in dashboard action:", error);
+    throw error; // Re-throw to let the framework handle the error
   }
-
-  await prisma.$transaction(upserts);
-
-  return {
-    updateStatus: "Success",
-    updatedMatchId: matchId,
-  };
 }
 
 export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
