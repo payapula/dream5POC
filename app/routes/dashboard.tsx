@@ -10,7 +10,7 @@ import { dashboardCache } from "~/utils/dashboard-cache.client";
 import { useRevalidator } from "react-router";
 import { RefreshCw } from "lucide-react";
 import { LastMatchStats } from "~/components/lastmatch/LastMatchStats";
-import { OverallChart } from "~/components/charts/overall/OverallChart";
+
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Dream5 | Dashboard" }];
 }
@@ -278,9 +278,8 @@ export default function Dashboard({}: Route.ComponentProps) {
           </div>
           {showAddMatchDetails && <AddEditMatchDetails />}
         </div>
-        {/* <OverallChart /> */}
         <ScoreCard />
-        {/* <LastMatchStats /> */}
+        <LastMatchStats />
       </div>
     </div>
   );
