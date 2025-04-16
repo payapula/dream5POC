@@ -278,9 +278,9 @@ export default function Dashboard({}: Route.ComponentProps) {
           </div>
           {showAddMatchDetails && <AddEditMatchDetails />}
         </div>
-        <OverallChart />
+        {/* <OverallChart /> */}
         <ScoreCard />
-        <LastMatchStats />
+        {/* <LastMatchStats /> */}
       </div>
     </div>
   );
