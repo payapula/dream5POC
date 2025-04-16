@@ -78,7 +78,7 @@ function UserSelector({
 
   return (
     <div className="mb-4 mt-4">
-      <div className="flex items-center space-x-2 mb-2">
+      <div className="flex items-center space-x-2 mb-6 px-2">
         <Checkbox
           id="select-all"
           checked={allSelected}
@@ -86,9 +86,9 @@ function UserSelector({
         />
         <Label htmlFor="select-all">All Users</Label>
       </div>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-6">
         {userKeys.map((userId) => (
-          <div key={userId} className="flex items-center space-x-2">
+          <div key={userId} className="flex items-center space-x-2 p-2">
             <Checkbox
               id={userId}
               checked={selectedUsers.includes(userId)}
