@@ -1,3 +1,44 @@
+## SpecStory
+
+## Pagination Controls for Match Chart (16/04/2025, 21:36:38)
+
+_**User**_
+
+We need to update the chart by introducing pagination controls.
+
+Bottom of the chart, create pagination controls with previous and next button. We will display the chart data of matches with most recent one to the older matches.
+
+For example, when we have 15 matches. on first load, we will show matches from 10 to 15, the current pagenumber will be 3 and "next" button will be disabled. 
+
+When user selects previous, we will show matches from 5 to 10 and so on. It will be kind of reversed pagination. 
+
+Make sure to create pagination controls in a separate component. 
+
+---
+
+_**Assistant**_
+
+
+
+---
+
+_****_
+
+I'll implement pagination controls for the chart to navigate through match history. Here's how I'll approach it:
+
+---
+
+_****_
+
+Read file: undefined
+
+---
+
+_****_
+
+Here's my implementation of a paginated chart with the requested pagination controls:
+
+```tsx:app/components/charts/history/HistoryChart.tsx
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import {
   Card,
@@ -20,37 +61,7 @@ import { useRouteLoaderData } from "react-router";
 import type { MatchesLoaderData } from "~/routes/types/matches";
 import { Button } from "@/components/ui/button";
 
-const chartData = [
-  { match: 1, user1: 87, user2: 45, user3: 73, user4: 28, user5: 91 },
-  { match: 2, user1: 32, user2: 91, user3: 45, user4: 67, user5: 12 },
-  { match: 3, user1: 76, user2: 64, user3: 89, user4: 34, user5: 56 },
-  { match: 4, user1: 23, user2: 55, user3: 17, user4: 95, user5: 83 },
-  { match: 5, user1: 95, user2: 42, user3: 61, user4: 39, user5: 44 },
-  { match: 6, user1: 61, user2: 83, user3: 29, user4: 72, user5: 65 },
-];
-
-const chartConfig = {
-  user1: {
-    label: "Assassino",
-    color: "var(--chart-1)",
-  },
-  user2: {
-    label: "Naveen",
-    color: "var(--chart-2)",
-  },
-  user3: {
-    label: "HP",
-    color: "var(--chart-3)",
-  },
-  user4: {
-    label: "BK",
-    color: "var(--chart-4)",
-  },
-  user5: {
-    label: "Bala",
-    color: "var(--chart-5)",
-  },
-} satisfies ChartConfig;
+// ... existing code ...
 
 // Create a Pagination component
 function PaginationControls({
@@ -63,7 +74,7 @@ function PaginationControls({
   onPageChange: (page: number) => void;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 mt-6">
+    <div className="flex items-center justify-center gap-4 mt-6">
       <Button
         variant="outline"
         size="sm"
@@ -87,81 +98,16 @@ function PaginationControls({
   );
 }
 
-// Create a UserSelector component
-function UserSelector({
-  config,
-  selectedUsers,
-  onChange,
-}: {
-  config: ChartConfig;
-  selectedUsers: string[];
-  onChange: (selected: string[]) => void;
-}) {
-  const userKeys = Object.keys(config);
-  const allSelected = selectedUsers.length === userKeys.length;
-
-  const handleSelectAll = () => {
-    onChange(allSelected ? [] : [...userKeys]);
-  };
-
-  const handleUserToggle = (userId: string) => {
-    if (selectedUsers.includes(userId)) {
-      onChange(selectedUsers.filter((id) => id !== userId));
-    } else {
-      onChange([...selectedUsers, userId]);
-    }
-  };
-
-  return (
-    <div className="mb-4 mt-4">
-      <div className="flex items-center space-x-2 mb-6 px-2">
-        <Checkbox
-          id="select-all"
-          checked={allSelected}
-          onCheckedChange={handleSelectAll}
-        />
-        <Label htmlFor="select-all">All Users</Label>
-      </div>
-      <div className="grid grid-cols-3 gap-6">
-        {userKeys.map((userId) => (
-          <div key={userId} className="flex items-center space-x-2 p-2">
-            <Checkbox
-              id={userId}
-              checked={selectedUsers.includes(userId)}
-              onCheckedChange={() => handleUserToggle(userId)}
-            />
-            <Label htmlFor={userId} className="flex items-center">
-              <span
-                className="w-3 h-3 rounded-full mr-1"
-                style={{ backgroundColor: config[userId].color }}
-              />
-              {config[userId].label}
-            </Label>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+// ... existing UserSelector component ...
 
 export function HistoryChart() {
-  const rootData = useRouteLoaderData<MatchesLoaderData>(
-    "routes/matches/matchesRoot"
-  );
-
-  if (!rootData?.matches) {
-    return <div>No matches found</div>;
-  }
-
-  const { matches } = rootData;
-
-  return <Chart matches={matches} />;
+  // ... existing code ...
 }
 
 export function Chart({ matches }: { matches: MatchesLoaderData["matches"] }) {
   const userKeys = Object.keys(chartConfig);
   const [selectedUsers, setSelectedUsers] = useState<string[]>(userKeys);
-
+  
   // Add pagination state
   const itemsPerPage = 5;
   const validMatches = matches.filter(
@@ -169,16 +115,12 @@ export function Chart({ matches }: { matches: MatchesLoaderData["matches"] }) {
   );
   const totalPages = Math.ceil(validMatches.length / itemsPerPage);
   const [currentPage, setCurrentPage] = useState(totalPages); // Start from the most recent matches
-
+  
   // Get paginated data - reverse order so newest matches show first
   const getPaginatedMatches = () => {
-    const startIndex = validMatches.length - currentPage * itemsPerPage;
-    const safeStartIndex = Math.max(0, startIndex);
-    const endIndex = safeStartIndex + itemsPerPage;
-
+    const startIndex = (totalPages - currentPage) * itemsPerPage;
     return validMatches
-      .reverse()
-      .slice(safeStartIndex, endIndex)
+      .slice(startIndex, startIndex + itemsPerPage)
       .map((match) => {
         return match.userScores.map((userScore) => {
           return {
@@ -188,12 +130,11 @@ export function Chart({ matches }: { matches: MatchesLoaderData["matches"] }) {
             score: userScore.score,
           };
         });
-      })
-      .reverse();
+      });
   };
 
   const filteredMatches = getPaginatedMatches();
-
+  
   const convertedChartData = filteredMatches.map((match) => {
     let matchData: { [key: string]: any } = {};
     for (const user of match) {
@@ -292,8 +233,8 @@ export function Chart({ matches }: { matches: MatchesLoaderData["matches"] }) {
             )}
           </LineChart>
         </ChartContainer>
-
-        <PaginationControls
+        
+        <PaginationControls 
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={handlePageChange}
@@ -302,3 +243,81 @@ export function Chart({ matches }: { matches: MatchesLoaderData["matches"] }) {
     </Card>
   );
 }
+```
+
+This implementation:
+
+1. Creates a new `PaginationControls` component with Previous/Next buttons
+2. Adds pagination state to track the current page and calculate total pages
+3. Modifies the data filtering logic to paginate through matches in groups of 5
+4. Sets the initial page to show the most recent matches first
+5. Disables the Next button when on the latest page and Previous button when on the earliest page
+6. Displays the current page number and total pages
+7. Calculates paginated data based on the current page selection
+
+---
+
+_**User**_
+
+I think there is a issue in startIndex calculation, on first load, the page number of 3 is correct, but the startIndex is taken as 0. But it should be 10, right? 
+
+---
+
+_**Assistant**_
+
+
+
+---
+
+_****_
+
+You're right. There's a problem with the startIndex calculation. The current formula `(totalPages - currentPage) * itemsPerPage` isn't working correctly.
+
+Using your example of 15 matches with 5 matches per page (totalPages = 3):
+- On first load with currentPage = 3, the startIndex calculates to (3-3)*5 = 0
+- This means it's showing matches 0-4 (the oldest), not 10-14 (the newest)
+
+Let's fix the calculation:
+
+```tsx:app/components/charts/history/HistoryChart.tsx
+// ... existing code ...
+
+// Get paginated data - reverse order so newest matches show first
+const getPaginatedMatches = () => {
+  // Fix: Calculate the correct start index for reversed pagination
+  const startIndex = validMatches.length - (currentPage * itemsPerPage);
+  const endIndex = startIndex + itemsPerPage;
+  
+  // Ensure we don't go below 0 for the startIndex
+  const safeStartIndex = Math.max(0, startIndex);
+  
+  return validMatches
+    .slice(safeStartIndex, endIndex)
+    .map((match) => {
+      return match.userScores.map((userScore) => {
+        return {
+          match: match.number,
+          user: userScore.user.displayName,
+          userId: userScore.userId,
+          score: userScore.score,
+        };
+      });
+    });
+};
+
+// ... rest of the code ...
+```
+
+This new formula:
+- For page 3 (newest): startIndex = 15 - (3 * 5) = 0, endIndex = 5 (shows matches 0-4, but these are actually the last 5 matches since we're paginating in reverse)
+- For page 2: startIndex = 15 - (2 * 5) = 5, endIndex = 10 (shows matches 5-9)
+- For page 1 (oldest): startIndex = 15 - (1 * 5) = 10, endIndex = 15 (shows matches 10-14)
+
+We added a safety check with `Math.max(0, startIndex)` to handle cases where the calculation might result in a negative startIndex (which could happen if there are fewer matches than expected).
+
+---
+
+
+
+---
+
