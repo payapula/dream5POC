@@ -10,6 +10,7 @@ import { dashboardCache } from "~/utils/dashboard-cache.client";
 import { useRevalidator } from "react-router";
 import { RefreshCw } from "lucide-react";
 import { LastMatchStats } from "~/components/lastmatch/LastMatchStats";
+import type { User, UserScore, Match, Team } from "@prisma/client";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Dream5 | Dashboard" }];
@@ -17,59 +18,75 @@ export function meta({}: Route.MetaArgs) {
 
 let isInitialRequest = true;
 
-export async function loader({}: Route.LoaderArgs): Promise<DashboardLoaderData> {
-  // Get all users
-  const users = await prisma.user.findMany();
+type ScoreWithRelations = UserScore & {
+  match: Match & {
+    homeTeam: Team;
+    awayTeam: Team;
+  };
+  user: User;
+};
 
-  // Get all scores
-  const allScores = await prisma.userScore.findMany({
-    include: {
-      match: {
-        include: {
-          homeTeam: true,
-          awayTeam: true,
-        },
-      },
-      user: true,
-    },
-  });
+type ScoresByMatch = Record<string, ScoreWithRelations[]>;
 
-  // Group scores by match
-  const scoresByMatch = allScores.reduce((acc, score) => {
+type MatchStats = Record<string, { highestScore: number; lowestScore: number }>;
+
+type CalculatedUserStats = {
+  id: string;
+  name: string;
+  displayName: string;
+  totalScore: number;
+  matchesWon: number;
+  matchesLost: number;
+};
+
+function groupScoresByMatch(allScores: ScoreWithRelations[]): ScoresByMatch {
+  return allScores.reduce((acc, score) => {
     if (!acc[score.matchId]) {
       acc[score.matchId] = [];
     }
     acc[score.matchId].push(score);
     return acc;
-  }, {} as Record<string, typeof allScores>);
+  }, {} as ScoresByMatch);
+}
 
-  // Find the latest match from the scores
-  let lastMatch = null;
+function calculateMatchStats(scoresByMatch: ScoresByMatch): MatchStats {
+  return Object.entries(scoresByMatch).reduce((acc, [matchId, scores]) => {
+    const allMatchScores = scores.map((s) => s.score);
+    acc[matchId] = {
+      highestScore: Math.max(...allMatchScores),
+      lowestScore: Math.min(...allMatchScores),
+    };
+    return acc;
+  }, {} as MatchStats);
+}
+
+function findLastMatch(
+  scoresByMatch: ScoresByMatch
+): DashboardLoaderData["lastMatch"] {
+  let lastMatch: DashboardLoaderData["lastMatch"] = null;
   let lastMatchDate = new Date(0);
 
-  // Find the most recent match
   Object.entries(scoresByMatch).forEach(([matchId, scores]) => {
-    const matchDate = new Date(scores[0].match.date);
+    // Ensure scores exist for the match before accessing index 0
+    if (!scores || scores.length === 0) return;
+
+    const currentMatch = scores[0].match;
+    const matchDate = new Date(currentMatch.date);
+
     if (matchDate > lastMatchDate) {
       lastMatchDate = matchDate;
-
-      // Get unique match data
-      const matchData = scores[0].match;
-
-      // Calculate highest score for this match
-      const highestScore = Math.max(...scores.map((s) => s.score));
-
-      // Get users with the highest score
+      const matchScores = scores.map((s) => s.score);
+      const highestScore = Math.max(...matchScores);
       const winnersIds = scores
         .filter((score) => Math.abs(score.score - highestScore) < 0.001)
         .map((score) => score.userId);
 
       lastMatch = {
         id: matchId,
-        date: matchData.date,
-        matchNumber: matchData.matchNumber,
-        homeTeam: matchData.homeTeam,
-        awayTeam: matchData.awayTeam,
+        date: currentMatch.date,
+        matchNumber: currentMatch.matchNumber,
+        homeTeam: currentMatch.homeTeam,
+        awayTeam: currentMatch.awayTeam,
         userScores: scores,
         winnersIds,
         highestScore,
@@ -77,23 +94,17 @@ export async function loader({}: Route.LoaderArgs): Promise<DashboardLoaderData>
     }
   });
 
-  // Pre-calculate highest and lowest scores for each match
-  const matchStats = Object.entries(scoresByMatch).reduce(
-    (acc, [matchId, scores]) => {
-      acc[matchId] = {
-        highestScore: Math.max(...scores.map((s) => s.score)),
-        lowestScore: Math.min(...scores.map((s) => s.score)),
-      };
-      return acc;
-    },
-    {} as Record<string, { highestScore: number; lowestScore: number }>
-  );
+  return lastMatch;
+}
 
-  // Calculate stats for each user
-  const userStats = users.map((user) => {
+function calculateAllUserStats(
+  users: User[],
+  allScores: ScoreWithRelations[],
+  matchStats: MatchStats
+): CalculatedUserStats[] {
+  return users.map((user) => {
     const userScores = allScores.filter((score) => score.userId === user.id);
 
-    // Use proper decimal addition
     const totalScore = Number(
       userScores.reduce((sum, score) => sum + score.score, 0).toFixed(1)
     );
@@ -101,14 +112,10 @@ export async function loader({}: Route.LoaderArgs): Promise<DashboardLoaderData>
     let matchesWon = 0;
     let matchesLost = 0;
 
-    // Now we use the pre-calculated stats with floating point comparison
     userScores.forEach((score) => {
       const stats = matchStats[score.matchId];
-      /**
-       * If any match is not played (or missed by entire team), the stats will be 0
-       * This is a hack to avoid calculating matches not played as won or lost
-       */
-      if (stats.highestScore > 0 && stats.lowestScore > 0) {
+      // Handle cases where a match might not have stats (e.g., only one player played)
+      if (stats && stats.highestScore > 0) {
         if (Math.abs(score.score - stats.highestScore) < 0.001) matchesWon++;
         if (Math.abs(score.score - stats.lowestScore) < 0.001) matchesLost++;
       }
@@ -123,18 +130,94 @@ export async function loader({}: Route.LoaderArgs): Promise<DashboardLoaderData>
       matchesLost,
     };
   });
+}
 
-  // Sort by total score (descending) to determine ranking
-  const rankedData = userStats
-    .sort((a, b) => b.totalScore - a.totalScore)
-    .map((user, index, array) => ({
+function rankUsers(
+  userStats: CalculatedUserStats[]
+): DashboardLoaderData["users"] {
+  // Sort by total score (descending) then by matches won (descending) as a tie-breaker
+  const sortedStats = userStats.sort(
+    (a, b) => b.totalScore - a.totalScore || b.matchesWon - a.matchesWon
+  );
+
+  const rankedUsers: DashboardLoaderData["users"] = []; // Initialize the result array
+
+  sortedStats.forEach((user, index) => {
+    let ranking = index + 1; // Start with default rank based on sorted position
+    let oneUp = 0;
+
+    // Compare with the previously processed user in the rankedUsers array
+    if (index > 0) {
+      const prevUserStats = sortedStats[index - 1]; // User stats from the sorted input
+      const prevRankedUser = rankedUsers[index - 1]; // User data from the result array being built
+
+      // Check for a tie based on score and matches won
+      if (
+        user.totalScore === prevUserStats.totalScore &&
+        user.matchesWon === prevUserStats.matchesWon
+      ) {
+        // Assign the same rank as the previous user in case of a tie
+        ranking = prevRankedUser.ranking;
+      }
+
+      // Calculate the score difference ('oneUp') only if the ranks are different
+      if (ranking !== prevRankedUser.ranking) {
+        // Ensure totalScore is treated as a number for subtraction
+        oneUp = Number(prevUserStats.totalScore) - Number(user.totalScore);
+      }
+    }
+
+    // Add the user with calculated ranking and oneUp to the result array
+    rankedUsers.push({
       ...user,
-      ranking: index + 1,
-      oneUp: index > 0 ? array[index - 1].totalScore - user.totalScore : 0,
-    }));
+      ranking: ranking,
+      oneUp: Number(oneUp.toFixed(1)), // Keep one decimal place consistent with totalScore
+    });
+  });
+
+  return rankedUsers;
+}
+
+export async function loader({}: Route.LoaderArgs): Promise<DashboardLoaderData> {
+  const users = await prisma.user.findMany();
+  const allScores = (await prisma.userScore.findMany({
+    include: {
+      match: {
+        include: {
+          homeTeam: true,
+          awayTeam: true,
+        },
+      },
+      user: true,
+    },
+  })) as ScoreWithRelations[]; // Type assertion for clarity
+
+  if (!allScores || allScores.length === 0) {
+    // Handle the case where there are no scores yet
+    return {
+      users: users.map((u, index) => ({
+        id: u.id,
+        name: u.name,
+        displayName: u.displayName,
+        totalScore: 0,
+        matchesWon: 0,
+        matchesLost: 0,
+        ranking: index + 1,
+        oneUp: 0,
+      })),
+      totalMatches: 0,
+      lastMatch: null,
+    };
+  }
+
+  const scoresByMatch = groupScoresByMatch(allScores);
+  const matchStats = calculateMatchStats(scoresByMatch);
+  const lastMatch = findLastMatch(scoresByMatch);
+  const userStats = calculateAllUserStats(users, allScores, matchStats);
+  const rankedUsers = rankUsers(userStats);
 
   return {
-    users: rankedData,
+    users: rankedUsers,
     totalMatches: Object.keys(scoresByMatch).length,
     lastMatch,
   };
