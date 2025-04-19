@@ -29,18 +29,20 @@ let isInitialRequest = true;
 
 export async function loader({}: Route.LoaderArgs): Promise<DashboardLoaderData> {
   const start = performance.now();
-  const users = await prisma.user.findMany();
-  const allScores = (await prisma.userScore.findMany({
-    include: {
-      match: {
-        include: {
-          homeTeam: true,
-          awayTeam: true,
+  const [users, allScores] = await Promise.all([
+    prisma.user.findMany(),
+    prisma.userScore.findMany({
+      include: {
+        match: {
+          include: {
+            homeTeam: true,
+            awayTeam: true,
+          },
         },
+        user: true,
       },
-      user: true,
-    },
-  })) as ScoreWithRelations[]; // Type assertion remains useful
+    }) as Promise<ScoreWithRelations[]>,
+  ]);
   // Your code here
   const end = performance.now();
   console.log(`Execution time of prisma query: ${end - start} milliseconds`);
