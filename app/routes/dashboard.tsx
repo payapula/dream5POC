@@ -28,6 +28,7 @@ export function meta({}: Route.MetaArgs) {
 let isInitialRequest = true;
 
 export async function loader({}: Route.LoaderArgs): Promise<DashboardLoaderData> {
+  const start = performance.now();
   const users = await prisma.user.findMany();
   const allScores = (await prisma.userScore.findMany({
     include: {
@@ -40,6 +41,9 @@ export async function loader({}: Route.LoaderArgs): Promise<DashboardLoaderData>
       user: true,
     },
   })) as ScoreWithRelations[]; // Type assertion remains useful
+  // Your code here
+  const end = performance.now();
+  console.log(`Execution time of prisma query: ${end - start} milliseconds`);
 
   if (!allScores || allScores.length === 0) {
     // Handle the case where there are no scores yet
@@ -60,12 +64,17 @@ export async function loader({}: Route.LoaderArgs): Promise<DashboardLoaderData>
     };
   }
 
+  const start2 = performance.now();
   // Use imported functions
   const scoresByMatch = groupScoresByMatch(allScores);
   const matchStats = calculateMatchStats(scoresByMatch);
   const lastMatch = findLastMatch(scoresByMatch);
   const userStats = calculateAllUserStats(users, allScores, matchStats);
   const rankedUsers = rankUsers(userStats);
+  const end2 = performance.now();
+  console.log(
+    `Execution time of dashboard helpers: ${end2 - start2} milliseconds`
+  );
 
   return {
     users: rankedUsers,
