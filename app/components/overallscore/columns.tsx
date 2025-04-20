@@ -67,7 +67,7 @@ export const columns: ColumnDef<UserStats>[] = [
   },
   {
     accessorKey: "totalScore",
-    header: () => <HeaderCell>Total Score</HeaderCell>,
+    header: () => <HeaderCell>Score</HeaderCell>,
     cell: ({ row }) => {
       const totalScore = row.original.totalScore;
       const formattedScore = totalScore.toLocaleString("en-IN");
@@ -76,7 +76,7 @@ export const columns: ColumnDef<UserStats>[] = [
   },
   {
     accessorKey: "oneUp",
-    header: () => <HeaderCell>One Up</HeaderCell>,
+    header: () => <HeaderCell>1 Up</HeaderCell>,
     cell: ({ row }) => {
       const oneUp = row.original.oneUp;
       return <Cell className="text-center">{oneUp}</Cell>;
@@ -96,7 +96,7 @@ export const columns: ColumnDef<UserStats>[] = [
   },
   {
     accessorKey: "matchesWon",
-    header: () => <HeaderCell>Matches Won</HeaderCell>,
+    header: () => <HeaderCell>Won</HeaderCell>,
     cell: ({ row }) => {
       const matchesWon = row.original.matchesWon;
       return <Cell className="text-center">{matchesWon}</Cell>;
@@ -104,7 +104,7 @@ export const columns: ColumnDef<UserStats>[] = [
   },
   {
     accessorKey: "matchesLost",
-    header: () => <HeaderCell>Matches Lost</HeaderCell>,
+    header: () => <HeaderCell>Lost</HeaderCell>,
     cell: ({ row }) => {
       const matchesLost = row.original.matchesLost;
       return <Cell className="text-center">{matchesLost}</Cell>;

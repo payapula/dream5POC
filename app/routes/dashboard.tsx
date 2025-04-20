@@ -1,5 +1,4 @@
 import type { Route } from "./+types/dashboard";
-import type { DashboardLoaderData } from "./types/dashboard";
 import { prisma } from "~/utils/db.server";
 import { AddEditMatchDetails } from "~/components/common/AddEditMatchDetails";
 import { ScoreCard } from "~/components/overallscore/scorecard";
@@ -10,134 +9,10 @@ import { dashboardCache } from "~/utils/dashboard-cache.client";
 import { useRevalidator } from "react-router";
 import { RefreshCw } from "lucide-react";
 import { LastMatchStats } from "~/components/lastmatch/LastMatchStats";
+import type { DashboardLoaderData } from "./types/dashboard";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Dream5 | Dashboard" }];
-}
-
-let isInitialRequest = true;
-
-export async function loader({}: Route.LoaderArgs): Promise<DashboardLoaderData> {
-  const [users, allScores] = await Promise.all([
-    prisma.user.findMany(),
-    prisma.userScore.findMany({
-      include: {
-        match: {
-          include: {
-            homeTeam: true,
-            awayTeam: true,
-          },
-        },
-        user: true,
-      },
-    }),
-  ]);
-
-  // Group scores by match
-  const scoresByMatch = allScores.reduce((acc, score) => {
-    if (!acc[score.matchId]) {
-      acc[score.matchId] = [];
-    }
-    acc[score.matchId].push(score);
-    return acc;
-  }, {} as Record<string, typeof allScores>);
-
-  // Find the latest match from the scores
-  let lastMatch = null;
-  let lastMatchDate = new Date(0);
-
-  // Find the most recent match
-  Object.entries(scoresByMatch).forEach(([matchId, scores]) => {
-    const matchDate = new Date(scores[0].match.date);
-    if (matchDate > lastMatchDate) {
-      lastMatchDate = matchDate;
-
-      // Get unique match data
-      const matchData = scores[0].match;
-
-      // Calculate highest score for this match
-      const highestScore = Math.max(...scores.map((s) => s.score));
-
-      // Get users with the highest score
-      const winnersIds = scores
-        .filter((score) => Math.abs(score.score - highestScore) < 0.001)
-        .map((score) => score.userId);
-
-      lastMatch = {
-        id: matchId,
-        date: matchData.date,
-        matchNumber: matchData.matchNumber,
-        homeTeam: matchData.homeTeam,
-        awayTeam: matchData.awayTeam,
-        userScores: scores,
-        winnersIds,
-        highestScore,
-      };
-    }
-  });
-
-  // Pre-calculate highest and lowest scores for each match
-  const matchStats = Object.entries(scoresByMatch).reduce(
-    (acc, [matchId, scores]) => {
-      acc[matchId] = {
-        highestScore: Math.max(...scores.map((s) => s.score)),
-        lowestScore: Math.min(...scores.map((s) => s.score)),
-      };
-      return acc;
-    },
-    {} as Record<string, { highestScore: number; lowestScore: number }>
-  );
-
-  // Calculate stats for each user
-  const userStats = users.map((user) => {
-    const userScores = allScores.filter((score) => score.userId === user.id);
-
-    // Use proper decimal addition
-    const totalScore = Number(
-      userScores.reduce((sum, score) => sum + score.score, 0).toFixed(1)
-    );
-
-    let matchesWon = 0;
-    let matchesLost = 0;
-
-    // Now we use the pre-calculated stats with floating point comparison
-    userScores.forEach((score) => {
-      const stats = matchStats[score.matchId];
-      /**
-       * If any match is not played (or missed by entire team), the stats will be 0
-       * This is a hack to avoid calculating matches not played as won or lost
-       */
-      if (stats.highestScore > 0 && stats.lowestScore > 0) {
-        if (Math.abs(score.score - stats.highestScore) < 0.001) matchesWon++;
-        if (Math.abs(score.score - stats.lowestScore) < 0.001) matchesLost++;
-      }
-    });
-
-    return {
-      id: user.id,
-      name: user.name,
-      displayName: user.displayName,
-      totalScore,
-      matchesWon,
-      matchesLost,
-    };
-  });
-
-  // Sort by total score (descending) to determine ranking
-  const rankedData = userStats
-    .sort((a, b) => b.totalScore - a.totalScore)
-    .map((user, index, array) => ({
-      ...user,
-      ranking: index + 1,
-      oneUp: index > 0 ? array[index - 1].totalScore - user.totalScore : 0,
-      forOne: index > 0 ? array[0].totalScore - user.totalScore : 0,
-    }));
-
-  return {
-    users: rankedData,
-    totalMatches: Object.keys(scoresByMatch).length,
-    lastMatch,
-  };
 }
 
 const userKeyMapping: Record<string, string> = {
@@ -185,10 +60,17 @@ export async function action({ request }: Route.ActionArgs) {
   };
 }
 
-export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
+let isInitialRequest = true;
+
+async function fetchDashboardData() {
+  const serverData = await fetch("/dashboard");
+  return await serverData.json();
+}
+
+export async function clientLoader(): Promise<DashboardLoaderData> {
   if (isInitialRequest) {
     isInitialRequest = false;
-    const serverData = await serverLoader();
+    const serverData = await fetchDashboardData();
     dashboardCache.set(serverData);
     return serverData;
   }
@@ -200,12 +82,10 @@ export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
   }
 
   // If no cache or expired, fetch from server
-  const serverData = await serverLoader();
+  const serverData = await fetchDashboardData();
   dashboardCache.set(serverData);
   return serverData;
 }
-
-clientLoader.hydrate = true as const;
 
 export function HydrateFallback() {
   return (
@@ -215,14 +95,36 @@ export function HydrateFallback() {
           <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
         </div>
         <div className="animate-pulse">
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="space-y-4">
-              <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-              <div className="space-y-3">
-                <div className="h-10 bg-gray-200 rounded"></div>
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-16 bg-gray-200 rounded"></div>
-                ))}
+          <div className="rounded-md border">
+            <div className="border-b">
+              <div className="h-6 bg-gray-200 rounded-t-md"></div>
+            </div>
+            <div className="space-y-2 p-2">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="flex items-center space-x-4 p-2">
+                  <div className="h-4 bg-gray-200 rounded w-1/6"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/6"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/6"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/6"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="animate-pulse mt-4">
+        <div className="rounded-md border">
+          <div className="border-b p-4">
+            <div className="h-6 bg-gray-200 rounded-t-md w-1/3 mx-auto"></div>
+          </div>
+          <div className="p-4 space-y-6">
+            <div className="flex flex-col items-center">
+              <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
+              <div className="flex items-center justify-between w-full">
+                <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                <div className="h-4 bg-gray-200 rounded w-8"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/3"></div>
               </div>
             </div>
           </div>
@@ -243,7 +145,7 @@ export async function clientAction({ serverAction }: Route.ClientActionArgs) {
   };
 }
 
-export default function Dashboard({}: Route.ComponentProps) {
+export default function Dashboard({ loaderData }: Route.ComponentProps) {
   const [clickCount, setClickCount] = useState(0);
   const showAddMatchDetails = clickCount > 5 || import.meta.env.DEV;
   const revalidator = useRevalidator();
@@ -255,6 +157,7 @@ export default function Dashboard({}: Route.ComponentProps) {
 
   return (
     <div>
+      {/* <HydrateFallback /> */}
       <div className="p-4">
         <div className="flex justify-between items-baseline mb-4">
           <div className="flex items-center gap-2">
@@ -278,7 +181,7 @@ export default function Dashboard({}: Route.ComponentProps) {
           </div>
           {showAddMatchDetails && <AddEditMatchDetails />}
         </div>
-        <ScoreCard />
+        <ScoreCard loaderData={loaderData} />
         <LastMatchStats />
       </div>
     </div>

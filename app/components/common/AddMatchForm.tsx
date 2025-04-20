@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { FormFieldSelect } from "./FormFieldSelect";
 import { useFetcher, useLoaderData } from "react-router";
 import type { loader as MatchListLoader } from "~/routes/match-list";
-import type { loader as UserListLoader } from "~/routes/dashboard";
+import type { loader as UserListLoader } from "~/routes/resource/dashboard";
 import { useEffect, useState } from "react";
 import { fetcherKeys } from "~/utils/fetcherKeys";
 const formSchema = z.object({

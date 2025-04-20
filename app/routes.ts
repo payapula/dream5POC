@@ -28,4 +28,5 @@ export default [
    */
   route("match-list", "routes/match-list.ts"),
   route("played-matches/:matchId", "routes/played-matches.ts"),
+  route("dashboard", "routes/resource/dashboard.ts"),
 ] satisfies RouteConfig;
