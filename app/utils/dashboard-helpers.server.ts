@@ -127,7 +127,7 @@ export function rankUsers(
   sortedStats.forEach((user, index) => {
     let ranking = index + 1; // Start with default rank based on sorted position
     let oneUp = 0;
-
+    let forOne = 0;
     // Compare with the previously processed user in the rankedUsers array
     if (index > 0) {
       const prevUserStats = sortedStats[index - 1]; // User stats from the sorted input
@@ -147,13 +147,16 @@ export function rankUsers(
         // Ensure totalScore is treated as a number for subtraction
         oneUp = Number(prevUserStats.totalScore) - Number(user.totalScore);
       }
+
+      forOne = Number(rankedUsers[0].totalScore) - Number(user.totalScore);
     }
 
     // Add the user with calculated ranking and oneUp to the result array
     rankedUsers.push({
       ...user,
       ranking: ranking,
-      oneUp: Number(oneUp.toFixed(1)), // Keep one decimal place consistent with totalScore
+      oneUp: Number(oneUp.toFixed(1)),
+      forOne: Number(forOne.toFixed(1)),
     });
   });
 
