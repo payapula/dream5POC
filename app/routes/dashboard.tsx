@@ -1,8 +1,4 @@
 import type { Route } from "./+types/dashboard";
-import type {
-  DashboardLoaderData,
-  ScoreWithRelations,
-} from "./types/dashboard";
 import { prisma } from "~/utils/db.server";
 import { AddEditMatchDetails } from "~/components/common/AddEditMatchDetails";
 import { ScoreCard } from "~/components/overallscore/scorecard";
@@ -13,77 +9,10 @@ import { dashboardCache } from "~/utils/dashboard-cache.client";
 import { useRevalidator } from "react-router";
 import { RefreshCw } from "lucide-react";
 import { LastMatchStats } from "~/components/lastmatch/LastMatchStats";
-import {
-  calculateAllUserStats,
-  calculateMatchStats,
-  findLastMatch,
-  groupScoresByMatch,
-  rankUsers,
-} from "~/utils/dashboard-helpers.server";
+import type { DashboardLoaderData } from "./types/dashboard";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Dream5 | Dashboard" }];
-}
-
-let isInitialRequest = true;
-
-export async function loader({}: Route.LoaderArgs): Promise<DashboardLoaderData> {
-  const start = performance.now();
-  const [users, allScores] = await Promise.all([
-    prisma.user.findMany(),
-    prisma.userScore.findMany({
-      include: {
-        match: {
-          include: {
-            homeTeam: true,
-            awayTeam: true,
-          },
-        },
-        user: true,
-      },
-    }) as Promise<ScoreWithRelations[]>,
-  ]);
-  // Your code here
-  const end = performance.now();
-  console.log(`Execution time of prisma query: ${end - start} milliseconds`);
-
-  if (!allScores || allScores.length === 0) {
-    // Handle the case where there are no scores yet
-    return {
-      // Make sure this structure matches DashboardLoaderData['users'] type
-      users: users.map((u, index) => ({
-        id: u.id,
-        name: u.name,
-        displayName: u.displayName,
-        totalScore: 0,
-        matchesWon: 0,
-        matchesLost: 0,
-        ranking: index + 1,
-        oneUp: 0,
-        forOne: 0,
-      })),
-      totalMatches: 0,
-      lastMatch: null,
-    };
-  }
-
-  const start2 = performance.now();
-  // Use imported functions
-  const scoresByMatch = groupScoresByMatch(allScores);
-  const matchStats = calculateMatchStats(scoresByMatch);
-  const lastMatch = findLastMatch(scoresByMatch);
-  const userStats = calculateAllUserStats(users, allScores, matchStats);
-  const rankedUsers = rankUsers(userStats);
-  const end2 = performance.now();
-  console.log(
-    `Execution time of dashboard helpers: ${end2 - start2} milliseconds`
-  );
-
-  return {
-    users: rankedUsers,
-    totalMatches: Object.keys(scoresByMatch).length,
-    lastMatch,
-  };
 }
 
 const userKeyMapping: Record<string, string> = {
@@ -131,10 +60,17 @@ export async function action({ request }: Route.ActionArgs) {
   };
 }
 
-export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
+let isInitialRequest = true;
+
+async function fetchDashboardData() {
+  const serverData = await fetch("/dashboard");
+  return await serverData.json();
+}
+
+export async function clientLoader(): Promise<DashboardLoaderData> {
   if (isInitialRequest) {
     isInitialRequest = false;
-    const serverData = await serverLoader();
+    const serverData = await fetchDashboardData();
     dashboardCache.set(serverData);
     return serverData;
   }
@@ -146,12 +82,10 @@ export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
   }
 
   // If no cache or expired, fetch from server
-  const serverData = await serverLoader();
+  const serverData = await fetchDashboardData();
   dashboardCache.set(serverData);
   return serverData;
 }
-
-clientLoader.hydrate = true as const;
 
 export function HydrateFallback() {
   return (
@@ -161,14 +95,36 @@ export function HydrateFallback() {
           <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
         </div>
         <div className="animate-pulse">
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="space-y-4">
-              <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-              <div className="space-y-3">
-                <div className="h-10 bg-gray-200 rounded"></div>
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-16 bg-gray-200 rounded"></div>
-                ))}
+          <div className="rounded-md border">
+            <div className="border-b">
+              <div className="h-6 bg-gray-200 rounded-t-md"></div>
+            </div>
+            <div className="space-y-2 p-2">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="flex items-center space-x-4 p-2">
+                  <div className="h-4 bg-gray-200 rounded w-1/6"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/6"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/6"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/6"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="animate-pulse mt-4">
+        <div className="rounded-md border">
+          <div className="border-b p-4">
+            <div className="h-6 bg-gray-200 rounded-t-md w-1/3 mx-auto"></div>
+          </div>
+          <div className="p-4 space-y-6">
+            <div className="flex flex-col items-center">
+              <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
+              <div className="flex items-center justify-between w-full">
+                <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                <div className="h-4 bg-gray-200 rounded w-8"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/3"></div>
               </div>
             </div>
           </div>
@@ -189,7 +145,7 @@ export async function clientAction({ serverAction }: Route.ClientActionArgs) {
   };
 }
 
-export default function Dashboard({}: Route.ComponentProps) {
+export default function Dashboard({ loaderData }: Route.ComponentProps) {
   const [clickCount, setClickCount] = useState(0);
   const showAddMatchDetails = clickCount > 5 || import.meta.env.DEV;
   const revalidator = useRevalidator();
@@ -201,6 +157,7 @@ export default function Dashboard({}: Route.ComponentProps) {
 
   return (
     <div>
+      {/* <HydrateFallback /> */}
       <div className="p-4">
         <div className="flex justify-between items-baseline mb-4">
           <div className="flex items-center gap-2">
@@ -224,7 +181,7 @@ export default function Dashboard({}: Route.ComponentProps) {
           </div>
           {showAddMatchDetails && <AddEditMatchDetails />}
         </div>
-        <ScoreCard />
+        <ScoreCard loaderData={loaderData} />
         <LastMatchStats />
       </div>
     </div>

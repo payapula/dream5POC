@@ -1,10 +1,13 @@
-import { useLoaderData } from "react-router";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
-import type { loader as DashboardLoader } from "~/routes/dashboard";
+import type { loader as DashboardLoader } from "~/routes/resource/dashboard";
 
-export function ScoreCard() {
-  const { users, totalMatches } = useLoaderData<typeof DashboardLoader>();
+export function ScoreCard({
+  loaderData,
+}: {
+  loaderData: Awaited<ReturnType<typeof DashboardLoader>>;
+}) {
+  const { users, totalMatches } = loaderData;
 
   return (
     <div className="container mx-auto">
