@@ -1,8 +1,8 @@
 import type { Route } from "./+types/match";
 import { prisma } from "~/utils/db.server";
 import { MatchResultCard } from "~/components/match/matchresultcard";
-import { Link } from "react-router";
-import { ArrowLeft } from "lucide-react";
+import { Link, useLoaderData } from "react-router";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { matchCache } from "~/utils/match-cache.client";
 
 let isInitialRequest = true;
@@ -99,15 +99,33 @@ export function HydrateFallback() {
 }
 
 export default function Match() {
+  const { match } = useLoaderData<typeof loader>();
+
+  const previousMatchId = Number(match.id) > 1 ? Number(match.id) - 1 : null;
+  const nextMatchId = Number(match.id) < 70 ? Number(match.id) + 1 : null;
+
   return (
     <div className="p-4">
-      <Link
-        to="/matches"
-        className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4"
-      >
-        <ArrowLeft className="w-4 h-4 mr-1" />
-        Back to Matches
-      </Link>
+      <div className="flex justify-between">
+        {previousMatchId && (
+          <Link
+            to={`/match/${previousMatchId}`}
+            className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4"
+          >
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            Previous
+          </Link>
+        )}
+        {nextMatchId && (
+          <Link
+            to={`/match/${nextMatchId}`}
+            className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4"
+          >
+            Next
+            <ArrowRight className="w-4 h-4 ml-1" />
+          </Link>
+        )}
+      </div>
       <h1 className="text-2xl font-bold mb-4 text-center">Match Result</h1>
       <MatchResultCard />
     </div>
