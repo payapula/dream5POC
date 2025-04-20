@@ -18,21 +18,20 @@ export function meta({}: Route.MetaArgs) {
 let isInitialRequest = true;
 
 export async function loader({}: Route.LoaderArgs): Promise<DashboardLoaderData> {
-  // Get all users
-  const users = await prisma.user.findMany();
-
-  // Get all scores
-  const allScores = await prisma.userScore.findMany({
-    include: {
-      match: {
-        include: {
-          homeTeam: true,
-          awayTeam: true,
+  const [users, allScores] = await Promise.all([
+    prisma.user.findMany(),
+    prisma.userScore.findMany({
+      include: {
+        match: {
+          include: {
+            homeTeam: true,
+            awayTeam: true,
+          },
         },
+        user: true,
       },
-      user: true,
-    },
-  });
+    }),
+  ]);
 
   // Group scores by match
   const scoresByMatch = allScores.reduce((acc, score) => {
@@ -131,6 +130,7 @@ export async function loader({}: Route.LoaderArgs): Promise<DashboardLoaderData>
       ...user,
       ranking: index + 1,
       oneUp: index > 0 ? array[index - 1].totalScore - user.totalScore : 0,
+      forOne: index > 0 ? array[0].totalScore - user.totalScore : 0,
     }));
 
   return {

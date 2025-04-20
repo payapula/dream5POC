@@ -40,6 +40,7 @@ export interface DashboardLoaderData {
     matchesLost: number;
     ranking: number;
     oneUp: number;
+    forOne: number;
   }[];
   totalMatches: number;
   lastMatch: LastMatch | null;
