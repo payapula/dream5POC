@@ -13,6 +13,7 @@ export type UserStats = {
   matchesLost: number;
   ranking: number;
   oneUp: number;
+  forOne: number;
 };
 
 function HeaderCell({ children }: { children: React.ReactNode }) {
@@ -32,7 +33,7 @@ function Cell({
 export const columns: ColumnDef<UserStats>[] = [
   {
     accessorKey: "displayName",
-    header: () => <HeaderCell>User Name</HeaderCell>,
+    header: () => <HeaderCell>Name</HeaderCell>,
     cell: ({ row }) => {
       const displayName = row.original.displayName;
       const userId = row.original.id;
@@ -55,8 +56,7 @@ export const columns: ColumnDef<UserStats>[] = [
           }}
           className="text-xs pl-0 cursor-pointer"
         >
-          Ranking
-          <ArrowUpDown className="ml-2" size={10} />
+          Rank
         </Button>
       );
     },
@@ -71,7 +71,7 @@ export const columns: ColumnDef<UserStats>[] = [
     cell: ({ row }) => {
       const totalScore = row.original.totalScore;
       const formattedScore = totalScore.toLocaleString("en-IN");
-      return <Cell>{formattedScore}</Cell>;
+      return <Cell className="text-center">{formattedScore}</Cell>;
     },
   },
   {
@@ -80,6 +80,18 @@ export const columns: ColumnDef<UserStats>[] = [
     cell: ({ row }) => {
       const oneUp = row.original.oneUp;
       return <Cell className="text-center">{oneUp}</Cell>;
+    },
+  },
+  {
+    accessorKey: "forOne",
+    header: () => <HeaderCell>For 1st</HeaderCell>,
+    cell: ({ row }) => {
+      const forOne = row.original.forOne;
+      return forOne > 0 ? (
+        <Cell className="text-center text-red-500">+{forOne}</Cell>
+      ) : (
+        <Cell className="text-center ">{forOne}</Cell>
+      );
     },
   },
   {

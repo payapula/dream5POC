@@ -60,6 +60,7 @@ export async function loader({}: Route.LoaderArgs): Promise<DashboardLoaderData>
         matchesLost: 0,
         ranking: index + 1,
         oneUp: 0,
+        forOne: 0,
       })),
       totalMatches: 0,
       lastMatch: null,
