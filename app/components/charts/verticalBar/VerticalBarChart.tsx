@@ -1,4 +1,4 @@
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   type ChartConfig,
@@ -27,6 +27,14 @@ export function VerticalBarChart({
         <ChartContainer config={chartConfig}>
           <BarChart accessibilityLayer data={filteredData}>
             <CartesianGrid vertical={false} />
+            {/*  TODO: Add max axis later?
+            
+            <YAxis
+              dataKey="max"
+              tickLine={false}
+              tickMargin={2}
+              axisLine={false}
+            /> */}
             <XAxis
               dataKey="match"
               tickLine={false}

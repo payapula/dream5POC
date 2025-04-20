@@ -107,7 +107,9 @@ export function UserSelector({
                 className="w-3 h-3 rounded-full mr-1"
                 style={{ backgroundColor: config[userId].color }}
               />
-              {config[userId].label}
+              <span style={{ color: config[userId].color }}>
+                {config[userId].label}
+              </span>
             </Label>
           </div>
         ))}

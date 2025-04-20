@@ -58,9 +58,14 @@ export default function Chart() {
       let matchData: { [key: string]: any } = {};
       if (matchScores.length > 0) {
         matchData["match"] = matchScores[0].match;
+        let maxScore = 0;
         for (const user of matchScores) {
           matchData[`user${user.userId}`] = user.score;
+          if (user.score > maxScore) {
+            maxScore = user.score;
+          }
         }
+        matchData["max"] = maxScore;
       }
       return matchData;
     })
@@ -72,6 +77,7 @@ export default function Chart() {
     selectedUsers.forEach((user) => {
       filteredPoint[user] = dataPoint[user];
     });
+    filteredPoint["max"] = dataPoint.max;
     return filteredPoint;
   });
 
