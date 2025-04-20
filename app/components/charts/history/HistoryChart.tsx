@@ -220,7 +220,6 @@ export function Chart({ matches }: { matches: MatchesLoaderData["matches"] }) {
     <Card className="py-4 mt-16">
       <CardHeader>
         <CardTitle>Scores Trend</CardTitle>
-        <CardDescription>Match History</CardDescription>
       </CardHeader>
       <CardContent>
         <UserSelector
