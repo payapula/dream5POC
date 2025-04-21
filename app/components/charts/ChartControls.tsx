@@ -80,7 +80,7 @@ export function UserSelector({
     if (selectedUsers.includes(userId)) {
       onChange(selectedUsers.filter((id) => id !== userId));
     } else {
-      onChange([...selectedUsers, userId]);
+      onChange([...selectedUsers, userId].sort());
     }
   };
 
