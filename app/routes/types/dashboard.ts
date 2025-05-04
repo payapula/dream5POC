@@ -44,7 +44,8 @@ export interface DashboardLoaderData {
     oneUp: number;
     forOne: number;
   }[];
-  totalMatches: number;
+  totalMatchesPlayed: number;
+  remainingMatches: number;
   lastMatch: LastMatch | null;
 }
 

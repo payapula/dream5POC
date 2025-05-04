@@ -11,6 +11,9 @@ import {
   rankUsers,
 } from "~/utils/dashboard-helpers.server";
 
+// TODO: Update this once we have the total number of matches
+const TOTAL_MATCHES = 74;
+
 export async function loader({}): Promise<DashboardLoaderData> {
   const start = performance.now();
   const [users, allScores] = await Promise.all([
@@ -46,7 +49,8 @@ export async function loader({}): Promise<DashboardLoaderData> {
         oneUp: 0,
         forOne: 0,
       })),
-      totalMatches: 0,
+      totalMatchesPlayed: 0,
+      remainingMatches: 0,
       lastMatch: null,
     };
   }
@@ -63,9 +67,15 @@ export async function loader({}): Promise<DashboardLoaderData> {
     `Execution time of dashboard helpers: ${end2 - start2} milliseconds`
   );
 
+  const totalMatchesPlayed = Object.keys(scoresByMatch).length;
+  const remainingMatches =
+    TOTAL_MATCHES -
+    (lastMatch?.matchNumber ? parseInt(lastMatch.matchNumber) : 0);
+
   return {
     users: rankedUsers,
-    totalMatches: Object.keys(scoresByMatch).length,
+    totalMatchesPlayed,
+    remainingMatches,
     lastMatch,
   };
 }

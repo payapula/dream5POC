@@ -7,12 +7,17 @@ export function ScoreCard({
 }: {
   loaderData: Awaited<ReturnType<typeof DashboardLoader>>;
 }) {
-  const { users, totalMatches } = loaderData;
+  const { users, totalMatchesPlayed, remainingMatches } = loaderData;
 
   return (
     <div className="container mx-auto">
-      <div className="text-sm text-gray-500 mb-4">
-        Total Matches Completed: {totalMatches}
+      <div className="flex justify-between items-baseline mb-4">
+        <div className="text-sm mb-4 text-green-600">
+          Played: {totalMatchesPlayed}
+        </div>
+        <div className="text-sm mb-4 text-red-600">
+          Remaining: {remainingMatches}
+        </div>
       </div>
       <DataTable columns={columns} data={users} />
     </div>

@@ -50,8 +50,10 @@ export function findLastMatch(
     if (!currentMatch) return;
 
     const matchDate = new Date(currentMatch.date);
-
-    if (matchDate > lastMatchDate) {
+    if (
+      matchDate > lastMatchDate ||
+      matchDate.getDate() === lastMatchDate.getDate()
+    ) {
       lastMatchDate = matchDate;
       const matchScores = scores.map((s) => s.score);
       const highestScore = Math.max(...matchScores);
