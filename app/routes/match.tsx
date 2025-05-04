@@ -34,6 +34,7 @@ export async function loader({ params }: Route.LoaderArgs) {
   const userResults = sortedScores.map((score, index) => {
     // Calculate the 1Up (points needed to reach the rank above)
     const oneUp = index > 0 ? sortedScores[index - 1].score - score.score : 0;
+    const forOne = sortedScores[0].score - score.score;
 
     return {
       id: score.user.id,
@@ -41,6 +42,7 @@ export async function loader({ params }: Route.LoaderArgs) {
       score: score.score,
       rank: index + 1,
       oneUp: Number(oneUp.toFixed(1)),
+      forOne: Number(forOne.toFixed(1)),
     };
   });
 
